@@ -274,4 +274,25 @@ router.post('/sync', protect, async (req, res) => {
   }
 });
 
+// @desc    List all available data sources for the user (for debugging)
+// @route   GET /api/google-fit/sources
+// @access  Private
+router.get('/sources', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    oauth2Client.setCredentials({ refresh_token: user.googleFitRefreshToken });
+    const fitness = google.fitness({ version: 'v1', auth: oauth2Client });
+
+    const response = await fitness.users.dataSources.list({ userId: 'me' });
+    
+    console.log('--- AVAILABLE DATA SOURCES ---');
+    console.log(JSON.stringify(response.data.dataSource, null, 2));
+
+    res.json(response.data.dataSource);
+  } catch (error) {
+    console.error('Error listing data sources:', error);
+    res.status(500).json({ message: 'Failed to list data sources' });
+  }
+});
+
 module.exports = router;

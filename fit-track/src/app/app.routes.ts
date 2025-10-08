@@ -18,6 +18,7 @@ import { ResetPassword } from './auth/pages/reset-password/reset-password';
 import { GoogleFitCallback } from './pages/google-fit-callback/google-fit-callback';
 import { Reports } from './pages/reports/reports';
 import { WeightTracking } from './pages/weight-tracking/weight-tracking';
+import { Hydration } from './pages/hydration/hydration';
 
 export const routes: Routes = [
     {
@@ -45,6 +46,7 @@ export const routes: Routes = [
             { path: 'google-fit-callback', component: GoogleFitCallback },
             { path: 'reports', component: Reports },
             { path: 'weight', component: WeightTracking },
+            { path: 'hydration', component: Hydration },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
         ]
     },

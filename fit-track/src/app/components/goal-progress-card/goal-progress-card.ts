@@ -15,6 +15,7 @@ export class GoalProgressCard {
   @Input() icon: string = 'activity';
   @Input() color: string = 'blue';
   @Input() textColor: string = ''; // Optional text color override
+  @Input() unit: string = '';
   // Add this line to create a new event emitter
   @Output() cardClick = new EventEmitter<void>();
   // SVG circle properties

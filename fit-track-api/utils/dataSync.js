@@ -5,6 +5,7 @@ const { startOfDay, endOfDay, subDays } = require('date-fns');
 const { toDate, format } = require('date-fns-tz');
 const WeightEntry = require('../models/WeightEntry');
 const userTimezone = 'Asia/Kolkata';
+const HydrationEntry = require('../models/HydrationEntry');
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
@@ -34,12 +35,6 @@ const syncWeightData = async (userId, authClient) => {
       dataSourceId: 'derived:com.google.weight:com.google.android.gms:merge_weight',
       datasetId: `${startTimeNanos}-${endTimeNanos}`,
     });
-
-    // --- ADDED FOR DEBUGGING ---
-    console.log('--- RAW GOOGLE FIT WEIGHT RESPONSE ---');
-    console.log(JSON.stringify(response.data, null, 2));
-    // ----------------------------
-
     const weightPoints = response.data.point;
     if (!weightPoints || weightPoints.length === 0) {
       console.log(`Weight sync ran, but Google Fit returned no data points.`);
@@ -72,6 +67,12 @@ const syncWeightData = async (userId, authClient) => {
 };
 
 const syncUserFitData = async (user) => {
+  // Guard clause to prevent crash if token is missing
+  if (!user.googleFitRefreshToken) {
+    console.log(`Skipping sync for ${user.email}: No refresh token found.`);
+    return;
+  }
+
   try {
     console.log(`Syncing data for user: ${user.email}`);
     oauth2Client.setCredentials({ refresh_token: user.googleFitRefreshToken });
@@ -97,8 +98,9 @@ const syncUserFitData = async (user) => {
       { upsert: true }
     );
 
-    // ------ SYNC WEIGHT DATA (NEWLY ADDED) ------
+    // ------ SYNC OTHER DATA TYPES ------
     await syncWeightData(user._id, oauth2Client);
+    await syncHydrationData(user._id, oauth2Client); // <-- This is the new line
 
     console.log(`✅ Successfully synced all data for ${user.email}`);
   } catch (error) {
@@ -116,4 +118,56 @@ const syncAllUsersData = async () => {
   console.log('--- Daily Data Sync Job Finished ---');
 };
 
-module.exports = { syncAllUsersData, syncUserFitData, syncWeightData };
+const syncHydrationData = async (userId, authClient) => {
+  try {
+    const fitness = google.fitness({ version: 'v1', auth: authClient });
+
+    // Fetch data for the last year
+    const now = new Date();
+    const startTime = new Date();
+    startTime.setFullYear(now.getFullYear() - 1);
+
+    const startTimeNanos = startTime.getTime() * 1000000;
+    const endTimeNanos = now.getTime() * 1000000;
+
+    const response = await fitness.users.dataSources.datasets.get({
+      userId: 'me',
+      dataSourceId: 'raw:com.google.hydration:com.google.android.apps.fitness:user_input',
+      datasetId: `${startTimeNanos}-${endTimeNanos}`,
+    });
+
+    const dataPoints = response.data.point;
+    if (!dataPoints || dataPoints.length === 0) {
+      console.log(`No hydration data found for user ${userId}.`);
+      return;
+    }
+
+    const operations = dataPoints.map(point => {
+      const entryDate = getStartOfDay(new Date(parseInt(point.startTimeNanos / 1000000)));
+      // Google Fit provides hydration in liters, we'll store it in milliliters.
+      const volumeInMl = point.value[0].fpVal * 1000;
+
+      return {
+        updateOne: {
+          filter: { user: userId, date: entryDate },
+          update: {
+            $set: {
+              user: userId,
+              date: entryDate,
+              volumeInMl: Math.round(volumeInMl)
+            }
+          },
+          upsert: true
+        }
+      };
+    });
+
+    const result = await HydrationEntry.bulkWrite(operations);
+    console.log(`Synced ${result.upsertedCount + result.modifiedCount} hydration entries for user ${userId}.`);
+
+  } catch (error) {
+    console.error('Error syncing Google Fit hydration data:', error.message);
+  }
+};
+
+module.exports = { syncAllUsersData, syncUserFitData, syncWeightData, syncHydrationData };

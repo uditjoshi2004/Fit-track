@@ -10,6 +10,7 @@ const cron = require('node-cron');
 const { syncAllUsersData } = require('./utils/dataSync');
 const achievementRoutes = require('./routes/achievementRoutes');
 const weightRoutes = require('./routes/weightRoutes');
+const hydrationRoutes = require('./routes/hydrationRoutes');
 
 // Connect to Database
 connectDB();
@@ -27,6 +28,7 @@ app.use('/api/google-fit', googleFitRoutes); // Using the google fit routes
 app.use('/api/weight', weightRoutes); // Using the weight routes
 app.use('/api/upload', uploadRoutes); // Using the upload routes
 app.use('/api/achievements', achievementRoutes); // Using the achievement routes
+app.use('/api/hydration', hydrationRoutes); // Using the hydration routes
 
 app.listen(PORT, () => {
     console.log(`🚀 Server is running on http://localhost:${PORT}`);
