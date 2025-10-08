@@ -1,0 +1,29 @@
+# IDEs and Editors
+.idea/
+.vscode/
+.history/
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Dependencies (ignores all node_modules folders in the project)
+/node_modules
+node_modules/
+
+# Environment Variables (ignores all .env files)
+.env
+
+# Angular Build Output & Cache
+/dist/
+/tmp/
+/out-tsc/
+/bazel-out/
+/.angular/cache/
+.sass-cache/
+
+# Log & Other Files
+npm-debug.log
+yarn-error.log
+/coverage
+testem.log
