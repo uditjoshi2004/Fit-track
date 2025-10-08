@@ -1,10 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService, User } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Trophy } from 'lucide-angular';
 import { AchievementService } from '../../services/achievement.service';
 import { AvatarCropModal } from "../avatar-crop-modal/avatar-crop-modal";
+import { UserAchievement } from '../../models/achievement.model';
 
 @Component({
   selector: 'app-profile',
@@ -26,6 +27,10 @@ export class Profile {
   private fb = inject(FormBuilder);
   public authService = inject(AuthService);
   private achievementService = inject(AchievementService); // Inject new service
+
+  // --- ADD THESE SIGNALS ---
+  public achievements = signal<UserAchievement[]>([]);
+  public isLoadingAchievements = signal(true);
 
   allAchievements: any[] = [];
   earnedBadgeIds = new Set<string>();
@@ -49,14 +54,16 @@ export class Profile {
       newPassword: ['', [Validators.required, Validators.minLength(6)]],
     });
 
-    // Fetch all possible achievements
-    this.achievementService.getAllAchievements().subscribe(achievements => {
-      this.allAchievements = achievements;
+    this.authService.getAchievements().subscribe({
+      next: (data) => {
+        this.achievements.set(data);
+        this.isLoadingAchievements.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to load achievements', err);
+        this.isLoadingAchievements.set(false);
+      }
     });
-
-    // Get the IDs of the badges the user has already earned
-    const earnedBadges = this.authService.currentUser()?.achievements || [];
-    this.earnedBadgeIds = new Set(earnedBadges.map(b => b.badgeId));
   }
 
   onProfileSubmit(): void {

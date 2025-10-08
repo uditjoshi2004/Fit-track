@@ -9,10 +9,66 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const speakeasy = require('speakeasy');
 const qrcode = require('qrcode');
-
+const Activity = require('../models/ActivityModel');
+const ACHIEVEMENTS = require('../config/achievements');
+const { startOfDay, endOfDay } = require('date-fns');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // NOTE: The incorrect userSchema that was here has been removed.
+
+// @desc    Get all achievements and the user's current status for them
+// @route   GET /api/users/achievements
+// @access  Private
+router.get('/achievements', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Get today's activity to check for daily achievements
+    const today = new Date();
+    const todaysActivity = await Activity.findOne({
+      user: req.user.id,
+      date: { $gte: startOfDay(today), $lte: endOfDay(today) }
+    });
+
+    const userEarnedBadges = new Map(user.achievements.map(a => [a.badgeId, a]));
+
+    // Combine static achievement data with dynamic user progress
+    const achievementStatus = ACHIEVEMENTS.map(achievement => {
+      let isEarnedToday = false;
+      let dateEarned = null;
+
+      if (achievement.type === 'daily') {
+        // Check if today's activity meets the condition for this daily badge
+        if (todaysActivity && todaysActivity[achievement.metric] >= achievement.condition.value) {
+          isEarnedToday = true;
+        }
+      } else if (achievement.type === 'persistent') {
+        // Check if the user has this persistent badge saved in their profile
+        if (userEarnedBadges.has(achievement.id)) {
+          dateEarned = userEarnedBadges.get(achievement.id).dateEarned;
+        }
+      }
+
+      return {
+        id: achievement.id,
+        name: achievement.name,
+        description: achievement.description,
+        type: achievement.type,
+        isEarnedToday,
+        dateEarned
+      };
+    });
+
+    res.json(achievementStatus);
+
+  } catch (error) {
+    console.error('Error fetching achievement status:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
 
 // @route   POST /api/users/register
 router.post('/register', async (req, res) => {
@@ -37,7 +93,7 @@ router.post('/register', async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        avatar: user.avatar,
+        avatarUrl: user.avatarUrl,
         provider: user.provider,
         token: generateToken(user._id),
       });

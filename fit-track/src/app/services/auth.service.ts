@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
+import { UserAchievement } from '../models/achievement.model';
 
 // Define an interface for the User object for type safety
 export interface User {
@@ -195,4 +196,7 @@ export class AuthService {
     );
   }
 
+  getAchievements(): Observable<UserAchievement[]> {
+    return this.http.get<UserAchievement[]>(`${this.apiUrl}/achievements`);
+  }
 }

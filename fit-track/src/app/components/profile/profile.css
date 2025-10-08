@@ -1,0 +1,46 @@
+.achievement-card {
+    @apply relative flex items-center gap-4 p-4 rounded-lg border border-transparent;
+    @apply bg-gray-200/50 dark:bg-gray-800 transition-all duration-300;
+  }
+  
+  .achievement-card .icon-container {
+    @apply p-3 rounded-full bg-gray-300 dark:bg-gray-700;
+  }
+  
+  .achievement-card lucide-icon {
+    @apply text-gray-400 dark:text-gray-500;
+  }
+  
+  .achievement-card .title {
+    @apply text-gray-500 dark:text-gray-400;
+  }
+  
+  .achievement-card .description {
+    @apply text-gray-400 dark:text-gray-500;
+  }
+  
+  /* --- STYLES FOR EARNED BADGES --- */
+  
+  .achievement-card.earned {
+    @apply border-yellow-500/50 bg-yellow-400/10 dark:bg-yellow-500/10;
+  }
+  
+  .achievement-card.earned .icon-container {
+    @apply bg-yellow-400/20 dark:bg-yellow-500/20;
+  }
+  
+  .achievement-card.earned lucide-icon {
+    @apply text-yellow-500 dark:text-yellow-400;
+  }
+  
+  .achievement-card.earned .title {
+    @apply text-gray-800 dark:text-white;
+  }
+  
+  .achievement-card.earned .description {
+    @apply text-gray-600 dark:text-gray-300;
+  }
+  
+  .achievement-card.earned .date-earned {
+    @apply text-yellow-600 dark:text-yellow-500;
+  }

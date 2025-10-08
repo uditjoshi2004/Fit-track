@@ -1,56 +1,83 @@
 const User = require('../models/UserModel');
 const Activity = require('../models/ActivityModel');
 const ACHIEVEMENTS = require('../config/achievements');
+const { startOfDay, subDays } = require('date-fns');
 
-const checkAndAwardAchievements = async (userId) => {
-  const user = await User.findById(userId);
-  const activities = await Activity.find({ user: userId }).sort({ date: -1 });
+/**
+ * Checks for and awards new persistent streak achievements for a user.
+ * @param {string} userId - The ID of the user to check.
+ * @returns {Promise<Array>} A promise that resolves to an array of newly earned achievement objects.
+ */
+const checkAndAwardStreakAchievements = async (userId) => {
+  try {
+    const user = await User.findById(userId);
+    if (!user) return [];
 
-  if (!user || activities.length === 0) return [];
+    const newAchievements = [];
+    // Get only the persistent streak achievements from our config file
+    const streakAchievements = ACHIEVEMENTS.filter(a => a.type === 'persistent' && a.condition.days);
+    const userEarnedIds = user.achievements.map(a => a.badgeId);
 
-  const newlyEarned = [];
-  const userBadgeIds = user.achievements.map(a => a.badgeId);
+    // Fetch up to 8 recent days of activity to check for streaks up to 7 days
+    const today = startOfDay(new Date());
+    const queryStartDate = subDays(today, 8); 
+    const recentActivities = await Activity.find({
+      user: userId,
+      date: { $gte: queryStartDate, $lt: today }
+    }).sort({ date: -1 });
 
-  // --- RULE CHECKING LOGIC ---
+    // Create a Map for fast lookups of activity by date
+    const activityMap = new Map();
+    recentActivities.forEach(act => {
+      activityMap.set(act.date.toISOString().split('T')[0], act);
+    });
+    
+    // Loop through each possible streak achievement
+    for (const achievement of streakAchievements) {
+      if (userEarnedIds.includes(achievement.id)) {
+        continue; // User already has this badge, so skip it
+      }
 
-  // Check for single-day step counts
-  const maxSteps = Math.max(...activities.map(a => a.steps));
-  if (maxSteps >= 10000 && !userBadgeIds.includes(ACHIEVEMENTS.STEPS_10K.id)) {
-    newlyEarned.push(ACHIEVEMENTS.STEPS_10K);
-  }
-  if (maxSteps >= 15000 && !userBadgeIds.includes(ACHIEVEMENTS.STEPS_15K.id)) {
-    newlyEarned.push(ACHIEVEMENTS.STEPS_15K);
-  }
+      let streakIntact = true;
+      // Loop backwards from yesterday for the required number of days
+      for (let i = 1; i <= achievement.condition.days; i++) {
+        const checkDate = subDays(today, i);
+        const dateString = checkDate.toISOString().split('T')[0];
+        const dayActivity = activityMap.get(dateString);
+        
+        // Check if the goal was met for that specific day
+        const goalMet = dayActivity && dayActivity[achievement.metric] >= user.goals[achievement.condition.goal];
 
-  // Check for 3-day goal streak
-  if (!userBadgeIds.includes(ACHIEVEMENTS.GOAL_STREAK_3.id)) {
-    let streak = 0;
-    for (let i = 0; i < activities.length && i < 3; i++) {
-      if (activities[i].steps >= user.goals.steps) {
-        streak++;
+        if (!goalMet) {
+          streakIntact = false;
+          break; // Streak is broken for this achievement, move to the next one
+        }
+      }
+
+      if (streakIntact) {
+        // If the loop completed without breaking, the streak was met!
+        const newBadge = {
+          badgeId: achievement.id,
+          name: achievement.name,
+          description: achievement.description,
+          dateEarned: new Date()
+        };
+        newAchievements.push(newBadge);
+        user.achievements.push(newBadge);
       }
     }
-    if (streak >= 3) {
-      newlyEarned.push(ACHIEVEMENTS.GOAL_STREAK_3);
+
+    // If any new badges were earned, save them to the user's profile
+    if (newAchievements.length > 0) {
+      await user.save();
     }
+
+    return newAchievements;
+
+  } catch (error) {
+    console.error('Error checking for streak achievements:', error);
+    return [];
   }
-
-  // We could add the 7-day streak logic here too...
-
-  // --- AWARDING ACHIEVEMENTS LOGIC ---
-  if (newlyEarned.length > 0) {
-    newlyEarned.forEach(badge => {
-      user.achievements.push({
-        badgeId: badge.id,
-        name: badge.name,
-        description: badge.description,
-        dateEarned: new Date(),
-      });
-    });
-    await user.save();
-  }
-
-  return newlyEarned;
 };
 
-module.exports = { checkAndAwardAchievements };
+module.exports = { checkAndAwardStreakAchievements };

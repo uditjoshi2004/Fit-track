@@ -6,6 +6,8 @@ const { toDate, format } = require('date-fns-tz');
 const WeightEntry = require('../models/WeightEntry');
 const userTimezone = 'Asia/Kolkata';
 const HydrationEntry = require('../models/HydrationEntry');
+// in utils/dataSync.js
+const { checkAndAwardStreakAchievements } = require('../services/achievementService');
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
@@ -100,7 +102,10 @@ const syncUserFitData = async (user) => {
 
     // ------ SYNC OTHER DATA TYPES ------
     await syncWeightData(user._id, oauth2Client);
-    await syncHydrationData(user._id, oauth2Client); // <-- This is the new line
+    await syncHydrationData(user._id, oauth2Client);
+
+    // ------ CHECK FOR NEW ACHIEVEMENTS ------
+    await checkAndAwardStreakAchievements(user._id); // <-- ADDED THIS LINE
 
     console.log(`✅ Successfully synced all data for ${user.email}`);
   } catch (error) {

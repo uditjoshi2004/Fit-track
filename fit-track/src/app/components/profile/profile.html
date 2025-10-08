@@ -101,30 +101,40 @@
       </div>
       }
 
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
-        <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-6">My Achievements</h3>
-        @if (allAchievements.length > 0) {
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          @for (badge of allAchievements; track badge.id) {
-          <div class="flex items-center p-4 border rounded-lg" [ngClass]="{
-                'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700': earnedBadgeIds.has(badge.id),
-                'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 opacity-50 grayscale': !earnedBadgeIds.has(badge.id)
-              }">
-            <div class="p-3 bg-yellow-100 dark:bg-yellow-500/20 rounded-full mr-4">
-              <lucide-icon name="Trophy" [ngClass]="{
-                    'text-yellow-500 dark:text-yellow-400': earnedBadgeIds.has(badge.id),
-                    'text-gray-400 dark:text-gray-500': !earnedBadgeIds.has(badge.id)
-                  }"></lucide-icon>
+      <div class="mt-8">
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">My Achievements</h2>
+
+        @if (isLoadingAchievements()) {
+        <p>Loading achievements...</p>
+        } @else {
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          @for (ach of achievements(); track ach.id) {
+          <div class="achievement-card"
+            [ngClass]="{ 'earned': (ach.type === 'daily' && ach.isEarnedToday) || (ach.type === 'persistent' && ach.dateEarned) }">
+
+            <div class="icon-container">
+              <lucide-icon name="trophy" size="24"></lucide-icon>
             </div>
-            <div>
-              <p class="font-semibold text-gray-800 dark:text-gray-200">{{ badge.name }}</p>
-              <p class="text-xs text-gray-500 dark:text-gray-400">{{ badge.description }}</p>
+
+            <div class="flex-grow">
+              <h3 class="font-semibold title">{{ ach.name }}</h3>
+              <p class="text-xs description">{{ ach.description }}</p>
+
+              @if (ach.type === 'persistent' && ach.dateEarned) {
+              <p class="text-xs mt-2 date-earned">
+                Unlocked on {{ ach.dateEarned | date: 'mediumDate' }}
+              </p>
+              }
             </div>
+
+            @if (ach.type === 'daily' && ach.isEarnedToday) {
+            <div class="absolute top-2 right-2 text-xs font-bold text-yellow-600 dark:text-yellow-400">
+              TODAY
+            </div>
+            }
           </div>
           }
         </div>
-        } @else {
-        <p class="text-center text-gray-500 dark:text-gray-400">Loading achievements...</p>
         }
       </div>
 
