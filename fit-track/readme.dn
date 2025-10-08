@@ -1,0 +1,28 @@
+const TOKEN_KEY = 'YOUR_KEY_HERE'; // Replace with your key
+
+fetch('/api/google-fit/disconnect', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${localStorage.getItem(TOKEN_KEY)}`
+  }
+})
+.then(res => res.json())
+.then(data => console.log('✅ Disconnect successful:', data))
+.catch(err => console.error('❌ Disconnect failed:', err));
+
+
+
+
+// 1. Replace 'YOUR_KEY_HERE' with your actual token key.
+const TOKEN_KEY = 'YOUR_KEY_HERE';
+
+// 2. This code sends the "sync" request to your backend.
+fetch('/api/google-fit/sync', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${localStorage.getItem(TOKEN_KEY)}`
+  }
+})
+.then(res => res.json())
+.then(data => console.log('✅ Sync successful:', data))
+.catch(err => console.error('❌ Sync failed:', err));

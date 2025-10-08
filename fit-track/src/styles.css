@@ -1,0 +1,6 @@
+/* Your existing Tailwind imports should come after */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* You can add any other custom global styles below */

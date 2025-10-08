@@ -1,0 +1,41 @@
+<aside class="bg-gray-800 text-white h-full flex flex-col p-4">
+    <div class="text-2xl font-bold mb-10 flex items-center gap-2">
+        <lucide-icon name="BarChart3" class="text-green-400"></lucide-icon>
+        <span>Fit-Track</span>
+    </div>
+
+    <nav class="flex flex-col gap-2">
+        <a routerLink="/app/dashboard" routerLinkActive="bg-gray-700 text-white"
+            [routerLinkActiveOptions]="{exact: true}"
+            class="flex items-center gap-3 px-4 py-3 text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white transition-colors">
+            <lucide-icon name="Home" [size]="20"></lucide-icon>
+            <span>Dashboard</span>
+        </a>
+        <a routerLink="/app/profile" routerLinkActive="bg-gray-700 text-white"
+            class="flex items-center gap-3 px-4 py-3 text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white transition-colors">
+            <lucide-icon name="User" [size]="20"></lucide-icon>
+            <span>Profile</span>
+        </a>
+        <a routerLink="/app/settings" routerLinkActive="bg-gray-700 text-white"
+            class="flex items-center gap-3 px-4 py-3 text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white transition-colors">
+            <lucide-icon name="Settings" [size]="20"></lucide-icon>
+            <span>Settings</span>
+        </a>
+        <a routerLink="/app/reports" routerLinkActive="bg-gray-700 text-white"
+            class="flex items-center gap-3 px-4 py-3 text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white transition-colors">
+            <lucide-icon name="FileDown"></lucide-icon>
+            <span>Reports</span>
+        </a>
+        <a routerLink="/app/weight" routerLinkActive="bg-gray-700 text-white"
+            class="flex items-center gap-3 px-4 py-3 text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white transition-colors">
+            <lucide-icon name="Gauge"></lucide-icon>
+            <span>Weight</span>
+        </a>
+    </nav>
+
+    <div class="mt-auto">
+        <button (click)="logout()"
+            class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white transition-colors">
+            <lucide-icon name="LogOut" class="h-5 w-5"></lucide-icon> <span>Logout</span>
+        </button>
+    </div>

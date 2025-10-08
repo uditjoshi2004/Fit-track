@@ -1,0 +1,71 @@
+<div class="h-full">
+
+  @switch (dataState) {
+  @case ('loading') {
+  <div class="flex items-center justify-center h-full">
+    <div class="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-blue-500"></div>
+  </div>
+  }
+  @case ('empty') {
+  <div class="flex flex-col items-center justify-center h-full text-center bg-white dark:bg-gray-800 rounded-lg shadow">
+    <lucide-icon name="FileX2" size="48" class="text-gray-400 mb-4"></lucide-icon>
+    <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200">No Activity Data Found</h3>
+    <p class="text-gray-500 dark:text-gray-400 mt-2 mb-6">Connect to Google Fit to sync and visualize your health data.
+    </p>
+    <button (click)="connectGoogleFit()"
+      class="px-4 py-2 font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
+      Connect to Google Fit
+    </button>
+  </div>
+  }
+  @case ('loaded') {
+  <div>
+    <div class="mb-6">
+      <div class="mb-6">
+        <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300">
+          Showing data for: {{ displayDateLabel() }}
+        </h2>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @if(kpiData && userGoals) {
+      <app-goal-progress-card (cardClick)="openDetailModal('steps')" title="Steps" [value]="kpiData.steps || 0"
+        [goal]="userGoals.steps" icon="footprints" color="blue">
+      </app-goal-progress-card>
+
+      <app-goal-progress-card (cardClick)="openDetailModal('calories')" title="Calories Burned"
+        [value]="kpiData.caloriesBurned || 0" [goal]="userGoals.caloriesBurned" icon="flame" color="black">
+      </app-goal-progress-card>
+
+      <app-goal-progress-card (cardClick)="openDetailModal('activeMinutes')" title="Active Minutes"
+        [value]="kpiData.activeMinutes || 0" [goal]="userGoals.activeMinutes" icon="timer" color="black" textColor="green">
+      </app-goal-progress-card>
+      }
+
+      <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+        <h3 class="font-bold text-lg text-gray-800 dark:text-gray-200 mb-4">Weekly Activity Trend</h3>
+        <div class="h-80">
+          <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" type="line">
+          </canvas>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+        <h3 class="font-bold text-lg text-gray-800 dark:text-gray-200 mb-4">Sleep vs. Workout</h3>
+        <div class="h-80">
+          <canvas baseChart [data]="barChartData" [options]="barChartOptions" type="bar">
+          </canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+  }
+</div>
+
+@if(isDetailModalOpen) {
+<app-detail-modal [date]="modalConfig.date" [metricType]="modalConfig.metric"
+  [dailyTotal]="getKpiValue(modalConfig.metric)" (close)="isDetailModalOpen = false">
+</app-detail-modal>
+}

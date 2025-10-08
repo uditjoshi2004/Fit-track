@@ -1,0 +1,110 @@
+<div class="w-full">
+  <div class="p-6 md:p-8 max-w-4xl mx-auto">
+    <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-8">Settings</h2>
+
+    <div class="space-y-8">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
+        <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-6">Set Your Daily Goals</h3>
+        <form [formGroup]="goalsForm" (ngSubmit)="onSubmit()">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="steps" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Steps</label>
+              <input id="steps" type="number" formControlName="steps"
+                class="w-full px-3 py-2 mt-1 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            </div>
+            <div>
+              <label for="calories" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Calories
+                Burned</label>
+              <input id="calories" type="number" formControlName="caloriesBurned"
+                class="w-full px-3 py-2 mt-1 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            </div>
+            <div>
+              <label for="minutes" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Active
+                Minutes</label>
+              <input id="minutes" type="number" formControlName="activeMinutes"
+                class="w-full px-3 py-2 mt-1 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            </div>
+            <div>
+              <label for="sleep" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Sleep
+                (hours)</label>
+              <input id="sleep" type="number" step="0.1" formControlName="sleepHours"
+                class="w-full px-3 py-2 mt-1 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            </div>
+          </div>
+          <div class="mt-8 text-right">
+            <button type="submit" [disabled]="goalsForm.invalid || isLoading"
+              class="px-6 py-2 font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50">
+              @if (isLoading) { <span>Saving...</span> } @else { <span>Save Changes</span> }
+            </button>
+          </div>
+          @if (successMessage) {
+          <p class="mt-4 text-sm text-center text-green-600">{{ successMessage }}</p>
+          }
+        </form>
+      </div>
+
+      <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Security</h2>
+      <div class="mt-4 p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
+        @if (authService.currentUser()?.isTwoFactorEnabled) {
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Two-Factor Authentication (2FA)</h3>
+            <p class="text-sm text-green-600 dark:text-green-400 mt-1">
+              ✓ Enabled
+            </p>
+          </div>
+          <button (click)="disable2FA()"
+            class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700">
+            Disable
+          </button>
+        </div>
+        } @else {
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Two-Factor Authentication (2FA)</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Add an extra layer of security using an authenticator app.
+            </p>
+          </div>
+          <button (click)="enable2FA()"
+            class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700">
+            Enable
+          </button>
+        </div>
+        }
+      </div>
+
+      <div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
+        <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-6">Connected Apps</h3>
+
+        @if (authService.currentUser()?.isGoogleFitConnected) {
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <img src="assets/google-fit-logo.png" alt="Google Fit Logo" class="w-8 h-8">
+            <p class="font-medium text-gray-800 dark:text-gray-200">Google Fit</p>
+          </div>
+          <button (click)="disconnectGoogleFit()"
+            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700">
+            Disconnect
+          </button>
+        </div>
+        } @else {
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <img src="assets/google-fit-logo.png" alt="Google Fit Logo" class="w-8 h-8 opacity-50">
+            <p class="font-medium text-gray-500 dark:text-gray-400">Google Fit (Not Connected)</p>
+          </div>
+          <button (click)="connectGoogleFit()"
+            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
+            Connect
+          </button>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+  @if (is2faModalOpen()) {
+  <app-two-factor-auth-modal [qrCodeUrl]="qrCodeUrl()" (close)="handle2faClose()" (verified)="handle2faVerified()">
+  </app-two-factor-auth-modal>
+  }
+</div>

@@ -1,0 +1,60 @@
+<div class="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
+  <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md dark:bg-gray-800">
+    <h1 class="text-2xl font-bold text-center text-gray-900 dark:text-white">Welcome Back</h1>
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email
+          Address</label>
+        <input id="email" type="email" formControlName="email"
+          class="w-full px-3 py-2 mt-1 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+      </div>
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+        <div class="relative mt-1">
+          <input id="password" [type]="passwordVisible ? 'text' : 'password'" formControlName="password"
+            class="w-full px-3 py-2 pr-10 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+
+          <button type="button" (click)="togglePasswordVisibility()"
+            class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+            @if (passwordVisible) {
+            <lucide-icon name="EyeOff" size="20"></lucide-icon>
+            } @else {
+            <lucide-icon name="Eye" size="20"></lucide-icon>
+            }
+          </button>
+        </div>
+      </div>
+
+      <div class="text-sm text-right -mt-6">
+        <a routerLink="/auth/forgot-password" class="font-medium text-blue-600 hover:underline dark:text-blue-400">
+          Forgot Password?
+        </a>
+      </div>
+
+      <div>
+        <button type="submit" [disabled]="loginForm.invalid || isLoading"
+          class="w-full px-4 py-2 font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50">
+          @if (isLoading) { <span>Logging in...</span> } @else { <span>Login</span> }
+        </button>
+      </div>
+    </form>
+
+    <div class="relative flex items-center justify-center my-6">
+      <div class="absolute inset-0 flex items-center">
+        <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
+      </div>
+      <div class="relative flex justify-center text-sm">
+        <span class="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">Or continue with</span>
+      </div>
+    </div>
+    <div id="google-btn" class="flex justify-center"></div>
+
+    @if (errorMessage) {
+    <p class="mt-2 text-sm text-center text-red-600">{{ errorMessage }}</p>
+    }
+    <p class="text-sm text-center text-gray-600 dark:text-gray-400">
+      Don't have an account? <a routerLink="/auth"
+        class="font-medium text-blue-600 hover:underline">Register</a>
+    </p>
+  </div>
+</div>

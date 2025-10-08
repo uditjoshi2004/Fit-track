@@ -1,0 +1,80 @@
+/* Unified Auth Component Styles */
+.unified-auth-container {
+  transition: all 0.3s ease-in-out;
+}
+
+.form-step {
+  animation: slideIn 0.3s ease-in-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.back-button {
+  transition: color 0.2s ease-in-out;
+}
+
+.back-button:hover {
+  transform: translateX(-2px);
+}
+
+/* Google button styling */
+#google-btn {
+  transition: opacity 0.2s ease-in-out;
+}
+
+#google-btn:hover {
+  opacity: 0.9;
+}
+
+/* Form input focus states */
+input:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Button loading state */
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* Error message styling */
+.error-message {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .form-container {
+    background-color: #1f2937;
+    border-color: #374151;
+  }
+  
+  input {
+    background-color: #f3f3f3;
+    color: black;
+  }
+  
+  input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+}

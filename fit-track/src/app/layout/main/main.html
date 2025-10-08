@@ -1,0 +1,13 @@
+<div class="grid grid-cols-[280px_1fr] grid-rows-[auto_1fr] h-screen bg-gray-100 dark:bg-gray-900">
+    <div class="row-span-2">
+      <app-sidebar></app-sidebar>
+    </div>
+  
+    <div class="col-start-2">
+      <app-header></app-header>
+    </div>
+  
+    <main class="col-start-2 p-6 overflow-y-auto">
+      <router-outlet></router-outlet>
+    </main>
+  </div>

@@ -1,0 +1,131 @@
+<div class="p-4 md:p-6 h-full flex flex-col">
+    <h1 class="text-3xl font-bold mb-4 text-gray-800 dark:text-gray-200">Weight Tracking</h1>
+    @if (latestWeightEntry(); as latest) {
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Latest Weight</h3>
+        <div class="flex items-baseline space-x-2 mt-1">
+            <p class="text-4xl font-bold text-gray-800 dark:text-gray-200">
+                {{ latest.weightInKg }}
+            </p>
+            <span class="text-lg text-gray-600 dark:text-gray-300">kg</span>
+        </div>
+        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+            Recorded on {{ latest.date | date: 'mediumDate' }}
+        </p>
+    </div>
+    }
+
+    @if (isLoading()) {
+    <p class="text-gray-500">Loading your weight data...</p>
+    } @else if (error()) {
+    <div class="text-red-500 bg-red-100 dark:bg-red-900/20 dark:text-red-400 p-4 rounded-md">
+        <p><strong>Error:</strong> {{ error() }}</p>
+    </div>
+    } @else {
+    <div class="flex flex-col flex-grow">
+        <div class="flex items-center space-x-1 p-1 bg-gray-200 dark:bg-gray-800 rounded-lg self-start">
+            <button (click)="setFilter('week')" [class.active-filter]="activeFilter() === 'week'"
+                class="filter-btn">Week</button>
+            <button (click)="setFilter('month')" [class.active-filter]="activeFilter() === 'month'"
+                class="filter-btn">Month</button>
+            <button (click)="setFilter('3months')" [class.active-filter]="activeFilter() === '3months'"
+                class="filter-btn">3 Months</button>
+            <button (click)="setFilter('year')" [class.active-filter]="activeFilter() === 'year'"
+                class="filter-btn">Year</button>
+        </div>
+
+        <div class="relative h-64 md:h-80 mb-6">
+            <canvas baseChart [data]="lineChartData()" [options]="lineChartOptions" [type]="'line'"></canvas>
+        </div>
+
+        @switch (activeFilter()) {
+        @case ('week') {
+        <h2 class="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300">This Week's Entries</h2>
+        @for (entry of filteredEntries(); track entry._id) {
+        <div class="flex justify-between items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50">
+            <span class="text-gray-600 dark:text-gray-400">{{ entry.date | date: 'EEEE, MMM d' }}</span>
+            <span class="font-bold text-gray-800 dark:text-gray-200">{{ entry.weightInKg }} kg</span>
+        </div>
+        } @empty {
+        <p class="text-gray-500">No data for this week.</p>
+        }
+        }
+        @case ('month') {
+        <h2 class="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300">This Month's Summary by Week</h2>
+        @for (summary of summaryData(); track summary.label) {
+        <div class="flex justify-between items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50">
+            <span class="text-gray-600 dark:text-gray-400">{{ summary.label }}</span>
+            <div class="flex items-center space-x-3 text-right">
+                @if (summary.change !== 0) {
+                <span class="flex items-center text-sm font-medium"
+                    [ngClass]="summary.change > 0 ? 'text-red-500' : 'text-green-500'">
+                    @if (summary.change > 0) {
+                    <lucide-icon name="arrow-up-right" class="size-4 mr-0.5"></lucide-icon>
+                    <span>+{{ summary.change | number:'1.1-1' }}</span>
+                    } @else {
+                    <lucide-icon name="arrow-down-left" class="size-4 mr-0.5"></lucide-icon>
+                    <span>{{ summary.change | number:'1.1-1' }}</span>
+                    }
+                </span>
+                }
+                <span class="font-bold text-gray-800 dark:text-gray-200 w-28 text-right">{{ summary.range }}</span>
+            </div>
+        </div>
+        } @empty {
+        <p class="text-gray-500">No data for this month.</p>
+        }
+        }
+        @case ('3months') {
+        <h2 class="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300">Last 3 Months' Summary</h2>
+        @for (summary of summaryData(); track summary.label) {
+        <div class="flex justify-between items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50">
+            <span class="text-gray-600 dark:text-gray-400">{{ summary.label }}</span>
+            <div class="flex items-center space-x-3 text-right">
+                @if (summary.change !== 0) {
+                <span class="flex items-center text-sm font-medium"
+                    [ngClass]="summary.change > 0 ? 'text-red-500' : 'text-green-500'">
+                    @if (summary.change > 0) {
+                    <lucide-icon name="arrow-up-right" class="size-4 mr-0.5"></lucide-icon>
+                    <span>+{{ summary.change | number:'1.1-1' }}</span>
+                    } @else {
+                    <lucide-icon name="arrow-down-left" class="size-4 mr-0.5"></lucide-icon>
+                    <span>{{ summary.change | number:'1.1-1' }}</span>
+                    }
+                </span>
+                }
+                <span class="font-bold text-gray-800 dark:text-gray-200 w-28 text-right">{{ summary.range }}</span>
+            </div>
+        </div>
+        } @empty {
+        <p class="text-gray-500">No data for this period.</p>
+        }
+        }
+        @case ('year') {
+        <h2 class="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300">This Year's Summary by Month</h2>
+        @for (summary of summaryData(); track summary.label) {
+        <div class="flex justify-between items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50">
+            <span class="text-gray-600 dark:text-gray-400">{{ summary.label }}</span>
+            <div class="flex items-center space-x-3 text-right">
+                @if (summary.change !== 0) {
+                <span class="flex items-center text-sm font-medium"
+                    [ngClass]="summary.change > 0 ? 'text-red-500' : 'text-green-500'">
+                    @if (summary.change > 0) {
+                    <lucide-icon name="arrow-up-right" class="size-4 mr-0.5"></lucide-icon>
+                    <span>+{{ summary.change | number:'1.1-1' }}</span>
+                    } @else {
+                    <lucide-icon name="arrow-down-left" class="size-4 mr-0.5"></lucide-icon>
+                    <span>{{ summary.change | number:'1.1-1' }}</span>
+                    }
+                </span>
+                }
+                <span class="font-bold text-gray-800 dark:text-gray-200 w-28 text-right">{{ summary.range }}</span>
+            </div>
+        </div>
+        } @empty {
+        <p class="text-gray-500">No data for this year.</p>
+        }
+        }
+        }
+    </div>
+    }
+</div>
