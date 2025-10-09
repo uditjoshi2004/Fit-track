@@ -105,7 +105,7 @@ const syncUserFitData = async (user) => {
     await syncHydrationData(user._id, oauth2Client);
 
     // ------ CHECK FOR NEW ACHIEVEMENTS ------
-    await checkAndAwardStreakAchievements(user._id); // <-- ADDED THIS LINE
+    await checkAndAwardAchievements(user._id); // <-- ADDED THIS LINE
 
     console.log(`✅ Successfully synced all data for ${user.email}`);
   } catch (error) {

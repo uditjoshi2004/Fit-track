@@ -9,7 +9,7 @@ const { startOfDay, endOfDay, subDays } = require('date-fns');
 const { toDate, format } = require('date-fns-tz');
 const { checkAndAwardAchievements } = require('../services/achievementService');
 const userTimezone = 'Asia/Kolkata';
-const { syncUserFitData, syncWeightData } = require('../utils/dataSync');
+const { syncUserFitData, syncWeightData, syncHydrationData } = require('../utils/dataSync');
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
@@ -129,6 +129,8 @@ router.post('/connect', protect, async (req, res) => {
 
     const newBadges = await checkAndAwardAchievements(req.user._id);
     await syncWeightData(req.user._id, oauth2Client);
+    await syncHydrationData(req.user._id, oauth2Client);
+
     res.json({
       message: 'Successfully connected and synced data!',
       newlyEarnedAchievements: newBadges // Sending new badges to the frontend
@@ -284,7 +286,7 @@ router.get('/sources', protect, async (req, res) => {
     const fitness = google.fitness({ version: 'v1', auth: oauth2Client });
 
     const response = await fitness.users.dataSources.list({ userId: 'me' });
-    
+
     console.log('--- AVAILABLE DATA SOURCES ---');
     console.log(JSON.stringify(response.data.dataSource, null, 2));
 

@@ -8,7 +8,7 @@ const { startOfDay, subDays } = require('date-fns');
  * @param {string} userId - The ID of the user to check.
  * @returns {Promise<Array>} A promise that resolves to an array of newly earned achievement objects.
  */
-const checkAndAwardStreakAchievements = async (userId) => {
+const checkAndAwardAchievements = async (userId) => {
   try {
     const user = await User.findById(userId);
     if (!user) return [];
@@ -80,4 +80,4 @@ const checkAndAwardStreakAchievements = async (userId) => {
   }
 };
 
-module.exports = { checkAndAwardStreakAchievements };
+module.exports = { checkAndAwardAchievements };
