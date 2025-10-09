@@ -11,16 +11,21 @@ export class FitnessDataService {
   // 2. Inject HttpClient
   private http = inject(HttpClient);
   // 3. Define the URL of your new API
-  private apiUrl = 'http://localhost:3000/api/activities';
+  private apiUrl = '/api';
 
   getActivities(startDate: Date, endDate: Date): Observable<DailyActivity[]> {
     const start = format(startDate, 'yyyy-MM-dd');
     const end = format(endDate, 'yyyy-MM-dd');
 
-    return this.http.get<DailyActivity[]>(`${this.apiUrl}?startDate=${start}&endDate=${end}`);
+    return this.http.get<DailyActivity[]>(`${this.apiUrl}/activities?startDate=${start}&endDate=${end}`);
   }
 
   getActivityForDate(date: string): Observable<DailyActivity | null> {
-    return this.http.get<DailyActivity | null>(`${this.apiUrl}/by-date?date=${date}`);
+    return this.http.get<DailyActivity | null>(`${this.apiUrl}/activities/by-date?date=${date}`);
+  }
+
+  getDailyBriefing(): Observable<{ briefing: string }> {
+    // Assuming your API is set up to be proxied
+    return this.http.get<{ briefing: string }>('/api/users/ai/daily-briefing');
   }
 }

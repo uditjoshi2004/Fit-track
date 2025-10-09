@@ -7,7 +7,7 @@ const WeightEntry = require('../models/WeightEntry');
 const userTimezone = 'Asia/Kolkata';
 const HydrationEntry = require('../models/HydrationEntry');
 // in utils/dataSync.js
-const { checkAndAwardStreakAchievements } = require('../services/achievementService');
+const { checkAndAwardAchievements } = require('../services/achievementService');
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,

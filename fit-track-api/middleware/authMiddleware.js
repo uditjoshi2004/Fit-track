@@ -1,5 +1,3 @@
-// in middleware/authMiddleware.js
-
 const jwt = require('jsonwebtoken');
 const User = require('../models/UserModel');
 
@@ -22,6 +20,11 @@ const protect = async (req, res, next) => {
 
       // Get user from the token
       req.user = await User.findById(decoded.id).select('-password');
+
+      if (!req.user) {
+        res.status(401);
+        return next(new Error('Not authorized, user not found'));
+      }// in middleware/authMiddleware.js
 
       next(); // Proceed to the next middleware/route handler
     } catch (error) {

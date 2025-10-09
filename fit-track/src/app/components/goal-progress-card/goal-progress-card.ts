@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, inject, input, Input, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
+import { ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 'app-goal-progress-card',
@@ -9,33 +10,34 @@ import { LucideAngularModule } from 'lucide-angular';
   styleUrl: './goal-progress-card.css'
 })
 export class GoalProgressCard {
-  @Input() title: string = 'Title';
+  @Input() title: string = '';
   @Input() value: number = 0;
-  @Input() goal: number = 10000;
-  @Input() icon: string = 'activity';
-  @Input() color: string = 'blue';
-  @Input() textColor: string = ''; // Optional text color override
+  @Input() goal: number = 1;
+  @Input() icon: string = '';
+  @Input() color: string = 'black';
+  @Input() textColor: string = '';
   @Input() unit: string = '';
-  // Add this line to create a new event emitter
-  @Output() cardClick = new EventEmitter<void>();
+  @Output() cardClick = new EventEmitter<void>()
+
+  public themeService = inject(ThemeService);
   // SVG circle properties
   circumference = 2 * Math.PI * 45; // 2 * pi * radius
   strokeDashoffset = this.circumference;
   percentage = 0;
 
   ngOnChanges(changes: SimpleChanges): void {
-    // This function runs whenever an input changes (e.g., when the value updates)
-    this.updateProgress();
+    if (changes['value'] || changes['goal']) {
+      this.calculateProgress();
+    }
   }
 
-  private updateProgress(): void {
-    if (this.goal > 0) {
-      this.percentage = Math.min(100, Math.floor((this.value / this.goal) * 100));
-      const progress = this.percentage / 100;
-      this.strokeDashoffset = this.circumference * (1 - progress);
-    } else {
-      this.percentage = 0;
-      this.strokeDashoffset = this.circumference;
-    }
+  private calculateProgress(): void {
+    const percent = this.goal > 0 ? (this.value / this.goal) * 100 : 0;
+    this.percentage = Math.min(100, Math.max(0, percent));
+    this.strokeDashoffset = this.circumference - (this.percentage / 100) * this.circumference;
+  }
+
+  get percent(): number {
+    return this.goal > 0 ? (this.value / this.goal) * 100 : 0;
   }
 }

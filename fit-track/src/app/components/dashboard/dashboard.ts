@@ -1,4 +1,4 @@
-import { Component, inject, effect, ViewChild, AfterViewInit, computed } from '@angular/core';
+import { Component, inject, effect, ViewChild, AfterViewInit, computed, signal } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { GoalProgressCard } from '../goal-progress-card/goal-progress-card';
 import { KpiCard } from '../kpi-card/kpi-card';
@@ -26,7 +26,7 @@ Chart.register(...registerables);
 export class Dashboard implements AfterViewInit {
   @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
 
-  themeService = inject(ThemeService);
+  // themeService = inject(ThemeService);
   fitnessDataService = inject(FitnessDataService);
   googleFitService = inject(GoogleFitService);
   dateStateService = inject(DateStateService);
@@ -48,6 +48,9 @@ export class Dashboard implements AfterViewInit {
   public barChartOptions: ChartOptions<'bar'> = {};
   public lineChartData: ChartConfiguration<'line'>['data'] = { labels: [], datasets: [] };
   public barChartData: ChartConfiguration<'bar'>['data'] = { labels: [], datasets: [] };
+  public dailyBriefing = signal<string | null>(null);
+  public isBriefingLoading = signal(true);
+  public themeService = inject(ThemeService); // <-- ADD THIS LINE
 
   displayDateLabel = computed(() => {
     const selected = this.dateStateService.selectedDate();
@@ -86,6 +89,21 @@ export class Dashboard implements AfterViewInit {
 
   initializeDashboard(): void {
     this.dataState = 'loading';
+    this.isBriefingLoading.set(true); // Start loading the briefing
+
+    // --- ADD THIS NEW CALL FOR THE AI BRIEFING ---
+    this.fitnessDataService.getDailyBriefing().subscribe({
+      next: (response) => {
+        this.dailyBriefing.set(response.briefing);
+        this.isBriefingLoading.set(false);
+      },
+      error: (err) => {
+        this.dailyBriefing.set('Could not load your daily briefing at this time.');
+        this.isBriefingLoading.set(false);
+        console.error('Error fetching briefing:', err);
+      }
+    });
+
     // First, fetch the user's goals
     this.authService.getGoals().subscribe({
       next: goals => {

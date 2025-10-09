@@ -13,6 +13,8 @@ const Activity = require('../models/ActivityModel');
 const ACHIEVEMENTS = require('../config/achievements');
 const { startOfDay, endOfDay } = require('date-fns');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const { generateDailyBriefing } = require('../services/aiAnalystService');
+const { isToday } = require('date-fns');
 
 // NOTE: The incorrect userSchema that was here has been removed.
 
@@ -604,5 +606,40 @@ router.post('/2fa/disable', protect, async (req, res) => {
     res.status(500).json({ message: 'Error disabling 2FA' });
   }
 });
+
+// @desc    Get the AI-generated daily briefing for the user
+// @route   GET /api/users/ai/daily-briefing
+// @access  Private
+router.get('/ai/daily-briefing', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if a valid briefing for today already exists in the cache
+    if (user.dailyBriefing && user.dailyBriefing.text && isToday(new Date(user.dailyBriefing.date))) {
+      return res.json({ briefing: user.dailyBriefing.text });
+    }
+
+    // If no valid cache, generate a new briefing
+    const newBriefingText = await generateDailyBriefing(user);
+
+    // Save the new briefing to the user's profile for caching
+    user.dailyBriefing = {
+      text: newBriefingText,
+      date: new Date()
+    };
+    await user.save();
+
+    // Send the new briefing to the frontend
+    res.json({ briefing: newBriefingText });
+
+  } catch (error) {
+    console.error('Error fetching daily briefing:', error);
+    res.status(500).json({ message: 'Error generating daily briefing' });
+  }
+});
+
 
 module.exports = router;

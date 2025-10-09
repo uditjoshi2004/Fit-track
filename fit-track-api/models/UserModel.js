@@ -14,6 +14,12 @@ const userSchema = new mongoose.Schema({
 
   height: { type: Number, default: 0 }, // in cm
   weight: { type: Number, default: 0 }, // in kg
+
+  dailyBriefing: {
+    text: String,
+    date: Date
+  },
+  
   googleFitRefreshToken: String,
 
   // new goals object
