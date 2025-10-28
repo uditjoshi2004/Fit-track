@@ -40,12 +40,11 @@ export class Profile {
     // Get current user from the service
     this.user = this.authService.currentUser();
 
-    // Initialize profile form
+    // Initialize profile form (removed weight field)
     this.profileForm = this.fb.group({
       name: [this.user?.name || '', [Validators.required]],
       email: [{ value: this.user?.email || '', disabled: true }], // Email is not editable
       height: [this.user?.height || '', [Validators.min(1)]], // For height
-      weight: [this.user?.weight || '', [Validators.min(1)]], // For weight
     });
 
     // Initialize password form
@@ -53,6 +52,7 @@ export class Profile {
       currentPassword: ['', [Validators.required]],
       newPassword: ['', [Validators.required, Validators.minLength(6)]],
     });
+
 
     this.authService.getAchievements().subscribe({
       next: (data) => {
@@ -69,7 +69,9 @@ export class Profile {
   onProfileSubmit(): void {
     if (this.profileForm.invalid) return;
     this.authService.updateProfile(this.profileForm.value).subscribe({
-      next: () => this.showMessage('profile', 'success', 'Profile updated successfully!'),
+      next: () => {
+        this.showMessage('profile', 'success', 'Profile updated successfully!');
+      },
       error: (err) => this.showMessage('profile', 'error', err.error.message || 'Failed to update profile.')
     });
   }
@@ -134,4 +136,5 @@ export class Profile {
       error: (err) => this.showMessage('profile', 'error', err.error.message || 'Upload failed.')
     });
   }
+
 }

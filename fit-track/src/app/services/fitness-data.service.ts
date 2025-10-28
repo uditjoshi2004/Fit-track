@@ -28,4 +28,8 @@ export class FitnessDataService {
     // Assuming your API is set up to be proxied
     return this.http.get<{ briefing: string }>('/api/users/ai/daily-briefing');
   }
+
+  askFollowUpQuestion(question: string): Observable<{ answer: string }> {
+    return this.http.post<{ answer: string }>('/api/users/ai/ask', { question });
+  }
 }

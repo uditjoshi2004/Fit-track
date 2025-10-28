@@ -199,4 +199,9 @@ export class AuthService {
   getAchievements(): Observable<UserAchievement[]> {
     return this.http.get<UserAchievement[]>(`${this.apiUrl}/achievements`);
   }
+
+  // Get BMI data from the backend
+  getBmiData(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/profile/bmi-data`);
+  }
 }

@@ -1,8 +1,0 @@
-/* Placeholder for daterangepicker overrides. If you don't need any, you can remove the reference in angular.json. */
-
-/* Example minimal styles to ensure inputs look fine if component emits classes */
-.drp-calendar, .ngx-daterangepicker-material {
-  /* keep empty to avoid overriding Tailwind by accident */
-}
-
-

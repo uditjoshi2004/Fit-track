@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/pages/bmi/bmi.css"],
+  "sourcesContent": ["/* BMI Page Specific Styles */\r\n\r\n/* Smooth transitions for filter buttons */\r\nbutton {\r\n  transition: all 0.2s ease-in-out;\r\n}\r\n\r\n/* Card hover effects */\r\n.bg-white:hover,\r\n.dark .dark\\:bg-gray-800:hover {\r\n  transform: translateY(-2px);\r\n  transition: transform 0.2s ease-in-out;\r\n}\r\n\r\n/* Chart container */\r\ncanvas {\r\n  max-height: 320px;\r\n}\r\n\r\n/* Category color indicators */\r\n.text-blue-600 {\r\n  color: #2563eb;\r\n}\r\n\r\n.text-green-600 {\r\n  color: #16a34a;\r\n}\r\n\r\n.text-yellow-600 {\r\n  color: #ca8a04;\r\n}\r\n\r\n.text-red-600 {\r\n  color: #dc2626;\r\n}\r\n\r\n/* Loading spinner animation */\r\n@keyframes spin {\r\n  to {\r\n    transform: rotate(360deg);\r\n  }\r\n}\r\n\r\n.animate-spin {\r\n  animation: spin 1s linear infinite;\r\n}\r\n\r\n"],
+  "mappings": ";AAGA;AACE,cAAY,IAAI,KAAK;AACvB;AAGA,CAAC,QAAQ;AACT,CAAC,KAAK,CAAC,iBAAiB;AACtB,aAAW,WAAW;AACtB,cAAY,UAAU,KAAK;AAC7B;AAGA;AACE,cAAY;AACd;AAGA,CAAC;AACC,SAAO;AACT;AAEA,CAAC;AACC,SAAO;AACT;AAEA,CAAC;AACC,SAAO;AACT;AAEA,CAAC;AACC,SAAO;AACT;AAGA,WAAW;AACT;AACE,eAAW,OAAO;AACpB;AACF;AAEA,CAAC;AACC,aAAW,KAAK,GAAG,OAAO;AAC5B;",
+  "names": []
+}

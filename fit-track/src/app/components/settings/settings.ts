@@ -72,6 +72,16 @@ export class Settings {
         next: () => {
           alert('Successfully disconnected from Google Fit.');
           this.googleFitService.signalDisconnected();
+          
+          // Refresh user profile to update connection status
+          this.authService.getProfile().subscribe({
+            next: (user) => {
+              this.authService.currentUser.set(user);
+            },
+            error: (err) => {
+              console.error('Failed to refresh user profile after disconnect:', err);
+            }
+          });
         },
         error: (err) => alert(`Failed to disconnect: ${err.error.message}`)
       });

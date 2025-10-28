@@ -19,6 +19,7 @@ import { GoogleFitCallback } from './pages/google-fit-callback/google-fit-callba
 import { Reports } from './pages/reports/reports';
 import { WeightTracking } from './pages/weight-tracking/weight-tracking';
 import { Hydration } from './pages/hydration/hydration';
+import { Bmi } from './pages/bmi/bmi';
 
 export const routes: Routes = [
     {
@@ -47,6 +48,7 @@ export const routes: Routes = [
             { path: 'reports', component: Reports },
             { path: 'weight', component: WeightTracking },
             { path: 'hydration', component: Hydration },
+            { path: 'bmi', component: Bmi },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
         ]
     },

@@ -10,10 +10,11 @@ const nodemailer = require('nodemailer');
 const speakeasy = require('speakeasy');
 const qrcode = require('qrcode');
 const Activity = require('../models/ActivityModel');
+const WeightEntry = require('../models/WeightEntry');
 const ACHIEVEMENTS = require('../config/achievements');
 const { startOfDay, endOfDay } = require('date-fns');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-const { generateDailyBriefing } = require('../services/aiAnalystService');
+const { generateDailyBriefing, getFollowUpAnswer } = require('../services/aiAnalystService');
 const { isToday } = require('date-fns');
 
 // NOTE: The incorrect userSchema that was here has been removed.
@@ -183,6 +184,62 @@ router.get('/profile', protect, async (req, res) => {
       res.status(404).json({ message: 'User not found' });
     }
   } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// @route   GET /api/users/profile/bmi-data
+// @desc    Get user's BMI data based on height and latest weight entry
+// @access  Private
+router.get('/profile/bmi-data', protect, async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Find the user's height
+    const user = await User.findById(userId).select('height');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Find the user's most recent weight entry
+    const latestWeightEntry = await WeightEntry.findOne({ user: userId })
+      .sort({ date: -1 })
+      .select('weightInKg');
+
+    // Check if both height and weight exist
+    if (!user.height || !latestWeightEntry) {
+      return res.status(400).json({
+        message: 'Height or weight data not available',
+        height: user.height || null,
+        latestWeight: latestWeightEntry?.weightInKg || null
+      });
+    }
+
+    // Calculate BMI: BMI = weight(kg) / height(m)²
+    const heightInMeters = user.height / 100; // Convert cm to meters
+    const bmi = latestWeightEntry.weightInKg / (heightInMeters * heightInMeters);
+
+    // Determine BMI category
+    let category;
+    if (bmi < 18.5) {
+      category = 'Underweight';
+    } else if (bmi >= 18.5 && bmi < 25) {
+      category = 'Normal';
+    } else if (bmi >= 25 && bmi < 30) {
+      category = 'Overweight';
+    } else {
+      category = 'Obese';
+    }
+
+    res.json({
+      height: user.height,
+      latestWeight: latestWeightEntry.weightInKg,
+      bmi: Math.round(bmi * 10) / 10, // Round to 1 decimal place
+      category: category
+    });
+
+  } catch (error) {
+    console.error('Error fetching BMI data:', error);
     res.status(500).json({ message: 'Server Error' });
   }
 });
@@ -594,7 +651,7 @@ router.post('/2fa/disable', protect, async (req, res) => {
       user.isTwoFactorEnabled = false;
       user.twoFactorSecret = undefined;
       await user.save();
-      
+
       // Send back the updated user profile so the frontend can update its state
       const updatedUser = await User.findById(req.user.id).select('-password');
       res.json(updatedUser);
@@ -641,5 +698,25 @@ router.get('/ai/daily-briefing', protect, async (req, res) => {
   }
 });
 
+// @desc    Ask a follow-up question to the AI
+// @route   POST /api/users/ai/ask
+// @access  Private
+router.post('/ai/ask', protect, async (req, res) => {
+  try {
+    const { question } = req.body;
+    const user = req.user;
+
+    if (!question || question.trim().length === 0) {
+      return res.status(400).json({ message: 'Question is required' });
+    }
+
+    const answer = await getFollowUpAnswer(user, question.trim());
+    res.json({ answer });
+
+  } catch (error) {
+    console.error('Error processing follow-up question:', error);
+    res.status(500).json({ message: 'Error processing your question' });
+  }
+});
 
 module.exports = router;

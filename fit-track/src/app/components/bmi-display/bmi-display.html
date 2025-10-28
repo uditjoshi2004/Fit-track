@@ -1,0 +1,27 @@
+@if (bmiData) {
+<div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 rounded-lg p-4 border border-blue-200 dark:border-gray-500">
+  <div class="flex items-center justify-between">
+    <div>
+      <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Current BMI</h4>
+      <div class="flex items-baseline space-x-2">
+        <span class="text-2xl font-bold text-gray-900 dark:text-white">{{ bmiData.bmi }}</span>
+        <span class="text-sm text-gray-500 dark:text-gray-400">kg/m²</span>
+      </div>
+    </div>
+    <div class="text-right">
+      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ getCategoryClass() }}">
+        {{ bmiData.category }}
+      </span>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+        {{ bmiData.latestWeight }}kg, {{ bmiData.height }}cm
+      </p>
+    </div>
+  </div>
+</div>
+} @else {
+<div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+  <p class="text-sm text-gray-500 dark:text-gray-400 text-center">
+    BMI data not available. Please add your height and weight entries.
+  </p>
+</div>
+}

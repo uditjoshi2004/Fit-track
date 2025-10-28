@@ -1,0 +1,232 @@
+.body-clock-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+}
+
+.body-clock-svg {
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+/* Dark mode support */
+.dark .body-clock-svg {
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+}
+
+.clock-background {
+  fill: transparent;
+}
+
+.dark .clock-background {
+  stroke: #4b5563;
+}
+
+.hour-markers line {
+  opacity: 0.6;
+}
+
+.dark .hour-markers line {
+  stroke: #6b7280;
+}
+
+.activity-segment {
+  opacity: 0.7;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.activity-segment:hover {
+  opacity: 1;
+  stroke-width: 2px !important;
+  filter: brightness(1.1);
+}
+
+.sleep-arc {
+  filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.3));
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sleep-arc:hover {
+  stroke-width: 8px !important;
+  filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.5));
+}
+
+.workout-marker {
+  filter: drop-shadow(0 2px 4px rgba(239, 68, 68, 0.3));
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.workout-marker:hover {
+  transform: scale(1.3);
+  filter: drop-shadow(0 2px 4px rgba(239, 68, 68, 0.5));
+}
+
+.workout-icon {
+  pointer-events: none;
+}
+
+.hour-label {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-weight: 500;
+}
+
+.dark .hour-label {
+  fill: #9ca3af;
+}
+
+.center-dot {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.current-time-marker {
+  filter: drop-shadow(0 2px 4px rgba(16, 185, 129, 0.4));
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Legend styles */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.dark .legend-item {
+  color: #9ca3af;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dark .legend-color {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.legend-color.sleep {
+  background: #3b82f6;
+}
+
+.legend-color.workout {
+  background: #ef4444;
+}
+
+.legend-color.current-time {
+  background: #10b981;
+}
+
+.legend-color.activity-low {
+  background: #fef3c7;
+}
+
+.legend-color.activity-high {
+  background: #ea580c;
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+  .body-clock-svg {
+    width: 280px;
+    height: 280px;
+  }
+  
+  .legend {
+    gap: 0.75rem;
+  }
+  
+  .legend-item {
+    font-size: 0.75rem;
+  }
+  
+  .legend-color {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+/* Tooltip styles */
+.tooltip {
+  position: fixed;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.tooltip-content {
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark .tooltip-content {
+  background: rgba(255, 255, 255, 0.95);
+  color: #1f2937;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.tooltip-content::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.9);
+}
+
+.dark .tooltip-content::before {
+  border-top-color: rgba(255, 255, 255, 0.95);
+}
+
+/* Animation for data loading */
+.body-clock-container.loading {
+  opacity: 0.6;
+}
+
+.body-clock-container.loading .activity-segment,
+.body-clock-container.loading .sleep-arc,
+.body-clock-container.loading .workout-marker {
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0.5;
+  }
+}

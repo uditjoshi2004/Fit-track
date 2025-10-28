@@ -59,7 +59,8 @@ export class Hydration {
     const filter = this.activeFilter();
     const now = this.selectedDate();
 
-    if (filter === 'day') return entries.filter(e => new Date(e.date) >= startOfDay(now) && new Date(e.date) <= endOfDay(now));
+    // For day view, use createdAt to capture exact entry times within the day
+    if (filter === 'day') return entries.filter(e => new Date(e.createdAt) >= startOfDay(now) && new Date(e.createdAt) <= endOfDay(now));
     if (filter === 'week') return entries.filter(e => new Date(e.date) >= startOfWeek(now) && new Date(e.date) <= endOfWeek(now));
     if (filter === 'month') return entries.filter(e => new Date(e.date) >= startOfMonth(now) && new Date(e.date) <= endOfMonth(now));
     return [];
@@ -102,6 +103,16 @@ export class Hydration {
       labels: labels,
       datasets: [{ data, label: 'Intake (ml)', backgroundColor: 'rgba(59, 130, 246, 0.5)', borderColor: 'rgba(59, 130, 246, 1)', borderWidth: 1, borderRadius: 4 }]
     };
+  });
+
+  // List of individual entries for the selected day, sorted by time
+  public dayEntries = computed(() => {
+    if (this.activeFilter() !== 'day') return [] as HydrationEntry[];
+    const dayStart = startOfDay(this.selectedDate());
+    const dayEnd = endOfDay(this.selectedDate());
+    return this.allEntries()
+      .filter(e => new Date(e.createdAt) >= dayStart && new Date(e.createdAt) <= dayEnd)
+      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
   });
 
   public dailySummaryLog = computed(() => {

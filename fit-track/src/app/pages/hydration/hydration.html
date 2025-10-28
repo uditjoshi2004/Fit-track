@@ -74,6 +74,24 @@
             <div class="relative h-64 md:h-72">
                 <canvas baseChart [data]="barChartData()" [options]="barChartOptions" [type]="'bar'"></canvas>
             </div>
+
+            @if (activeFilter() === 'day') {
+            <div class="mt-6">
+                <h4 class="text-lg font-semibold mb-3 text-gray-700 dark:text-gray-300">Entries Today</h4>
+                @if (dayEntries().length > 0) {
+                <ul class="divide-y divide-gray-200 dark:divide-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800">
+                    @for (entry of dayEntries(); track entry._id) {
+                    <li class="flex items-center justify-between px-4 py-3">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">{{ entry.createdAt | date: 'HH:mm' }}</span>
+                        <span class="text-base font-semibold text-gray-800 dark:text-gray-200">{{ entry.volumeInMl | number }} ml</span>
+                    </li>
+                    }
+                </ul>
+                } @else {
+                <p class="text-sm text-gray-500 dark:text-gray-400">No entries for this day.</p>
+                }
+            </div>
+            }
             }
         </div>
 

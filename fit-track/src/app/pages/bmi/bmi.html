@@ -1,0 +1,288 @@
+<div class="p-6 md:p-8 max-w-7xl mx-auto">
+  <!-- Page Header -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">BMI Calculator</h1>
+    <p class="text-gray-600 dark:text-gray-400">Calculate your Body Mass Index and monitor your health journey</p>
+  </div>
+
+  <!-- Google Fit Connection Required Message -->
+  @if (!isConnected()) {
+  <div class="flex flex-col items-center justify-center h-[60vh] text-center bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+    <lucide-icon name="link-off" size="64" class="text-gray-400 dark:text-gray-500 mb-6 mx-auto"></lucide-icon>
+    <h3 class="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-3">Google Fit Connection Required</h3>
+    <p class="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto">
+      Please connect to Google Fit from the Settings page or Dashboard to access the BMI calculator and track your health metrics.
+    </p>
+    <div class="px-6 py-3 font-medium text-gray-500 dark:text-gray-400 border-2 border-gray-300 dark:border-gray-600 rounded-md inline-flex items-center gap-2 cursor-not-allowed">
+      <lucide-icon name="settings" [size]="20"></lucide-icon>
+      Go to Settings to Connect
+    </div>
+  </div>
+  } @else {
+
+  <!-- Manual BMI Calculator -->
+  <div
+    class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 rounded-lg shadow-lg p-6 md:p-8 mb-8 border border-blue-200 dark:border-gray-600">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+      <div class="mb-4 md:mb-0">
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-1 flex items-center gap-2">
+          <lucide-icon name="calculator" [size]="28" class="text-blue-600 dark:text-blue-400"></lucide-icon>
+          Calculate Your BMI
+        </h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400">Enter your measurements to calculate your BMI</p>
+      </div>
+
+      <!-- Unit Toggle -->
+      <div class="flex items-center gap-2 bg-white dark:bg-gray-600 rounded-lg p-1 shadow-sm">
+        <button (click)="toggleUnit()"
+          [class]="useMetric() ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'"
+          class="px-4 py-2 rounded-md text-sm font-medium transition-colors">
+          Metric
+        </button>
+        <button (click)="toggleUnit()"
+          [class]="!useMetric() ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'"
+          class="px-4 py-2 rounded-md text-sm font-medium transition-colors">
+          US Units
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <!-- Age Input -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Age (years)
+        </label>
+        <div class="relative">
+          <input type="number" [(ngModel)]="manualAge" placeholder="e.g., 25"
+            class="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-lg"
+            min="2" max="120" step="1">
+          <lucide-icon name="calendar" [size]="20" class="absolute right-3 top-3.5 text-gray-400"></lucide-icon>
+        </div>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Ages: 2 - 120</p>
+      </div>
+
+      <!-- Gender Selection -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Gender
+        </label>
+        <div class="flex gap-4 mt-3">
+          <label class="flex items-center cursor-pointer">
+            <input type="radio" name="gender" [value]="'male'" [(ngModel)]="manualGender"
+              class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700">
+            <span class="ml-2 text-gray-700 dark:text-gray-300">Male</span>
+          </label>
+          <label class="flex items-center cursor-pointer">
+            <input type="radio" name="gender" [value]="'female'" [(ngModel)]="manualGender"
+              class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700">
+            <span class="ml-2 text-gray-700 dark:text-gray-300">Female</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Height Input -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Height @if (useMetric()) { (cm) } @else { (feet + inches) }
+        </label>
+        @if (useMetric()) {
+        <!-- Metric: cm -->
+        <div class="relative">
+          <input type="number" [(ngModel)]="manualHeight" placeholder="e.g., 170"
+            class="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-lg"
+            min="0" step="0.1">
+          <lucide-icon name="ruler" [size]="20" class="absolute right-3 top-3.5 text-gray-400"></lucide-icon>
+        </div>
+        } @else {
+        <!-- US Units: feet + inches -->
+        <div class="flex gap-2">
+          <div class="relative flex-1">
+            <input type="number" [(ngModel)]="manualHeightFeet" placeholder="5"
+              class="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-lg"
+              min="0" step="1">
+            <span class="absolute right-3 top-3.5 text-gray-400 text-sm">ft</span>
+          </div>
+          <div class="relative flex-1">
+            <input type="number" [(ngModel)]="manualHeightInches" placeholder="7"
+              class="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-lg"
+              min="0" max="11" step="0.1">
+            <span class="absolute right-3 top-3.5 text-gray-400 text-sm">in</span>
+          </div>
+        </div>
+        }
+      </div>
+
+      <!-- Weight Input -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Weight @if (useMetric()) { (kg) } @else { (lbs) }
+        </label>
+        <div class="relative">
+          <input type="number" [(ngModel)]="manualWeight" [placeholder]="useMetric() ? 'e.g., 65' : 'e.g., 143'"
+            class="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-lg"
+            min="0" step="0.1">
+          <lucide-icon name="weight" [size]="20" class="absolute right-3 top-3.5 text-gray-400"></lucide-icon>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-wrap gap-3 mb-6">
+      <button (click)="calculateManualBmi()"
+        class="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shadow-md">
+        <lucide-icon name="calculator" [size]="18"></lucide-icon>
+        Calculate BMI
+      </button>
+      <button (click)="resetCalculator()"
+        class="flex items-center gap-2 px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-medium rounded-lg transition-colors shadow-md">
+        <lucide-icon name="refresh-cw" [size]="18"></lucide-icon>
+        Reset
+      </button>
+    </div>
+
+    <!-- BMI Result Display -->
+    @if (showManualResult() && manualBmi() !== null) {
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg border-2" [ngClass]="{
+           'border-blue-500': manualCategory() === 'Underweight',
+           'border-green-500': manualCategory() === 'Normal',
+           'border-yellow-500': manualCategory() === 'Overweight',
+           'border-red-500': manualCategory() === 'Obese'
+         }">
+      <!-- Result Header -->
+      <div class="text-center mb-6">
+        <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">Result</h3>
+        <div class="inline-flex items-center px-4 py-2 rounded-full text-lg font-semibold" [ngClass]="{
+                 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200': manualCategory() === 'Underweight',
+                 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200': manualCategory() === 'Normal',
+                 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200': manualCategory() === 'Overweight',
+                 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200': manualCategory() === 'Obese'
+               }">
+          <lucide-icon [name]="getBmiCategoryInfo(manualCategory()).icon" [size]="20" class="mr-2">
+          </lucide-icon>
+          {{ manualCategory() }}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Left: BMI Value and Gauge -->
+        <div class="flex flex-col items-center">
+          <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">BMI = {{ manualBmi() }} kg/m²</p>
+
+          <!-- BMI Gauge -->
+          <div class="relative w-full max-w-xs aspect-[2/1] mt-4">
+            <!-- Gauge Background -->
+            <svg viewBox="0 0 200 110" class="w-full h-full">
+              <!-- Underweight Arc (Blue) -->
+              <path d="M 20 100 A 80 80 0 0 1 53 35" fill="none" stroke="#3b82f6" stroke-width="20" />
+              <!-- Normal Arc (Green) -->
+              <path d="M 53 35 A 80 80 0 0 1 100 20" fill="none" stroke="#22c55e" stroke-width="20" />
+              <!-- Overweight Arc (Yellow) -->
+              <path d="M 100 20 A 80 80 0 0 1 147 35" fill="none" stroke="#eab308" stroke-width="20" />
+              <!-- Obese Arc (Red) -->
+              <path d="M 147 35 A 80 80 0 0 1 180 100" fill="none" stroke="#ef4444" stroke-width="20" />
+
+              <!-- Needle -->
+              <g [style.transform]="'rotate(' + getBmiGaugeRotation() + 'deg)'"
+                style="transform-origin: 100px 100px; transition: transform 0.5s ease-out;">
+                <line x1="100" y1="100" x2="100" y2="30" stroke="#1f2937" stroke-width="3" />
+                <circle cx="100" cy="100" r="6" fill="#1f2937" />
+              </g>
+
+              <!-- BMI Value in Center -->
+              <text x="100" y="95" text-anchor="middle" font-size="24" font-weight="bold" fill="currentColor"
+                class="fill-gray-800 dark:fill-gray-200">
+                BMI = {{ manualBmi() }}
+              </text>
+            </svg>
+
+            <!-- Labels -->
+            <div class="absolute bottom-0 left-0 text-xs text-gray-600 dark:text-gray-400">15</div>
+            <div class="absolute bottom-0 right-0 text-xs text-gray-600 dark:text-gray-400">40</div>
+          </div>
+        </div>
+
+        <!-- Right: Additional Metrics -->
+        <div class="space-y-4">
+          <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Healthy BMI Range:</span>
+              <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">18.5 - 25 kg/m²</span>
+            </div>
+          </div>
+
+          <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Healthy Weight for Height:</span>
+              <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                {{ healthyWeightMin() }} - {{ healthyWeightMax() }} @if (useMetric()) { kg } @else { lbs }
+              </span>
+            </div>
+          </div>
+
+          <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">BMI Prime:</span>
+              <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ bmiPrime() }}</span>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Ratio of your BMI to the upper limit of normal (25). Ideal is &lt; 1.0
+            </p>
+          </div>
+
+          <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Ponderal Index:</span>
+              <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ ponderalIndex() }} kg/m³</span>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Alternative measure using height cubed. Normal range: 11-14 kg/m³
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+        <p class="text-sm text-gray-700 dark:text-gray-300">
+          {{ getBmiCategoryInfo(manualCategory()).description }}
+        </p>
+      </div>
+    </div>
+    }
+  </div>
+
+  <!-- BMI Categories Reference -->
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+    <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">BMI Categories</h2>
+    <p class="text-gray-600 dark:text-gray-400 mb-6 text-sm">
+      Body Mass Index (BMI) is a measure of body fat based on height and weight. Here are the standard BMI categories:
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      @for (range of getBmiRanges(); track range.category) {
+      <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+        <div class="flex items-center mb-2">
+          <div [class]="range.color + ' w-3 h-3 rounded-full mr-2'"></div>
+          <h3 class="font-semibold text-gray-800 dark:text-gray-200">{{ range.category }}</h3>
+        </div>
+        <p class="text-2xl font-bold text-gray-700 dark:text-gray-300">{{ range.range }}</p>
+      </div>
+      }
+    </div>
+
+    <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+      <div class="flex items-start space-x-3">
+        <lucide-icon name="info" [size]="20"
+          class="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5"></lucide-icon>
+        <p class="text-sm text-blue-900 dark:text-blue-200">
+          <strong>Note:</strong> BMI is a general indicator and may not accurately reflect body composition for
+          athletes,
+          elderly individuals, or pregnant women. Always consult with a healthcare provider for personalized health
+          advice.
+        </p>
+      </div>
+    </div>
+  </div>
+  }
+</div>
