@@ -14,7 +14,7 @@ const WeightEntry = require('../models/WeightEntry');
 const ACHIEVEMENTS = require('../config/achievements');
 const { startOfDay, endOfDay } = require('date-fns');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-const { generateDailyBriefing, getFollowUpAnswer } = require('../services/aiAnalystService');
+const { generateDailyBriefing, getFollowUpAnswer, generateReportSummary, generateCorrelationInsights } = require('../services/aiAnalystService');
 const { isToday } = require('date-fns');
 
 // NOTE: The incorrect userSchema that was here has been removed.
@@ -716,6 +716,80 @@ router.post('/ai/ask', protect, async (req, res) => {
   } catch (error) {
     console.error('Error processing follow-up question:', error);
     res.status(500).json({ message: 'Error processing your question' });
+  }
+});
+
+// @desc    Generate AI report summary for a date range
+// @route   POST /api/users/ai/report-summary
+// @access  Private
+router.post('/ai/report-summary', protect, async (req, res) => {
+  try {
+    const { startDate, endDate, dateRange } = req.body;
+    const user = req.user;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ message: 'Start date and end date are required' });
+    }
+
+    // Fetch all data for the date range
+    const [activities, hydrationData, weightData] = await Promise.all([
+      Activity.find({ 
+        user: user._id, 
+        date: { $gte: new Date(startDate), $lte: new Date(endDate) } 
+      }).sort({ date: 1 }),
+      require('../models/HydrationEntry').find({ 
+        user: user._id, 
+        date: { $gte: new Date(startDate), $lte: new Date(endDate) } 
+      }).sort({ date: 1 }),
+      WeightEntry.find({ 
+        user: user._id, 
+        date: { $gte: new Date(startDate), $lte: new Date(endDate) } 
+      }).sort({ date: 1 })
+    ]);
+
+    const summary = await generateReportSummary(user, activities, hydrationData, weightData, dateRange);
+    res.json({ summary });
+
+  } catch (error) {
+    console.error('Error generating report summary:', error);
+    res.status(500).json({ message: 'Error generating report summary' });
+  }
+});
+
+// @desc    Generate correlation insights for a date range
+// @route   POST /api/users/ai/correlation-insights
+// @access  Private
+router.post('/ai/correlation-insights', protect, async (req, res) => {
+  try {
+    const { startDate, endDate } = req.body;
+    const user = req.user;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ message: 'Start date and end date are required' });
+    }
+
+    // Fetch all data for the date range
+    const [activities, hydrationData, weightData] = await Promise.all([
+      Activity.find({ 
+        user: user._id, 
+        date: { $gte: new Date(startDate), $lte: new Date(endDate) } 
+      }).sort({ date: 1 }),
+      require('../models/HydrationEntry').find({ 
+        user: user._id, 
+        date: { $gte: new Date(startDate), $lte: new Date(endDate) } 
+      }).sort({ date: 1 }),
+      WeightEntry.find({ 
+        user: user._id, 
+        date: { $gte: new Date(startDate), $lte: new Date(endDate) } 
+      }).sort({ date: 1 })
+    ]);
+
+    const insights = await generateCorrelationInsights(user, activities, hydrationData, weightData);
+    res.json({ insights });
+
+  } catch (error) {
+    console.error('Error generating correlation insights:', error);
+    res.status(500).json({ message: 'Error generating correlation insights' });
   }
 });
 

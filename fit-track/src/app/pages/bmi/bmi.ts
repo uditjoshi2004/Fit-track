@@ -14,7 +14,7 @@ import { LucideAngularModule } from 'lucide-angular';
 export class Bmi {
   private authService = inject(AuthService);
   private googleFitService = inject(GoogleFitService);
-  
+
   // Track Google Fit connection status
   public isConnected = signal<boolean>(false);
 
@@ -59,7 +59,6 @@ export class Bmi {
     const user = this.authService.currentUser();
     this.isConnected.set(user?.isGoogleFitConnected === true);
   }
-
 
   getBmiCategoryInfo(category: string): { color: string; description: string; icon: string } {
     switch (category) {

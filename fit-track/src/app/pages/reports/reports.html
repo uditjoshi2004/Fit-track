@@ -25,7 +25,7 @@
     </button>
   </div>
 
-  <div id="pdf-content" class="p-8 bg-white max-w-4xl mx-auto rounded-lg shadow">
+  <div id="pdf-content" class="p-8 bg-white max-w-6xl mx-auto rounded-lg shadow">
     <div class="flex items-center justify-between border-b border-gray-200 pb-4 mb-6">
       <div>
         <h1 class="text-2xl font-bold text-gray-800">{{ reportTitle }}</h1>
@@ -35,26 +35,117 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-3 gap-6 my-8 text-center">
-      <div>
+    <!-- AI Report Summary -->
+    @if (aiSummary) {
+    <div class="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+      <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+        <lucide-icon name="Brain" size="20" class="mr-2 text-blue-600"></lucide-icon>
+        AI Analysis
+      </h3>
+      <div class="text-gray-700 whitespace-pre-line">{{ aiSummary }}</div>
+    </div>
+    } @else if (isLoadingAI) {
+    <div class="mb-8 p-6 bg-gray-50 rounded-lg">
+      <div class="flex items-center">
+        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+        <span class="text-gray-600">Generating AI analysis...</span>
+      </div>
+    </div>
+    }
+
+    <!-- Enhanced KPI Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 my-8 text-center">
+      <div class="p-4 bg-blue-50 rounded-lg">
         <p class="text-sm text-gray-500">Total Steps</p>
-        <p class="text-3xl font-bold text-gray-800">{{ reportSummary.totalSteps | number }}</p>
+        <p class="text-2xl font-bold text-blue-600">{{ reportSummary.totalSteps | number }}</p>
+        <p class="text-xs text-gray-400">Avg: {{ reportSummary.avgSteps | number: '0.0-0' }}/day</p>
       </div>
-      <div>
-        <p class="text-sm text-gray-500">Total Active Minutes</p>
-        <p class="text-3xl font-bold text-gray-800">{{ reportSummary.totalActiveMinutes | number }}</p>
+      <div class="p-4 bg-green-50 rounded-lg">
+        <p class="text-sm text-gray-500">Active Minutes</p>
+        <p class="text-2xl font-bold text-green-600">{{ reportSummary.totalActiveMinutes | number }}</p>
+        <p class="text-xs text-gray-400">Avg: {{ reportSummary.avgActiveMinutes | number: '0.0-0' }}/day</p>
       </div>
-      <div>
-        <p class="text-sm text-gray-500">Average Sleep</p>
-        <p class="text-3xl font-bold text-gray-800">{{ reportSummary.avgSleep | number: '1.1-1' }} hrs</p>
+      <div class="p-4 bg-purple-50 rounded-lg">
+        <p class="text-sm text-gray-500">Sleep</p>
+        <p class="text-2xl font-bold text-purple-600">{{ reportSummary.avgSleep | number: '1.1-1' }} hrs</p>
+        <p class="text-xs text-gray-400">Average per day</p>
+      </div>
+      <div class="p-4 bg-cyan-50 rounded-lg">
+        <p class="text-sm text-gray-500">Hydration</p>
+        <p class="text-2xl font-bold text-cyan-600">{{ reportSummary.avgHydration | number: '0.0-0' }}ml</p>
+        <p class="text-xs text-gray-400">Average per day</p>
       </div>
     </div>
 
-    <div class="mt-8">
-      <h3 class="text-lg font-semibold text-gray-700 mb-4">Activity Trend</h3>
-      <div class="h-80">
-        <canvas baseChart [data]="chartData" [options]="chartOptions" type="line"></canvas>
+    <!-- Additional Metrics Row -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-center">
+      <div class="p-4 bg-orange-50 rounded-lg">
+        <p class="text-sm text-gray-500">Workouts</p>
+        <p class="text-2xl font-bold text-orange-600">{{ reportSummary.workoutDays }}</p>
+        <p class="text-xs text-gray-400">Days with 30+ min activity</p>
+      </div>
+      <div class="p-4 bg-red-50 rounded-lg">
+        <p class="text-sm text-gray-500">Weight Change</p>
+        <p class="text-2xl font-bold" [ngClass]="reportSummary.weightChange >= 0 ? 'text-red-600' : 'text-green-600'">
+          {{ reportSummary.weightChange > 0 ? '+' : '' }}{{ reportSummary.weightChange | number: '1.1-1' }}kg
+        </p>
+        <p class="text-xs text-gray-400">Over selected period</p>
+      </div>
+      <div class="p-4 bg-gray-50 rounded-lg">
+        <p class="text-sm text-gray-500">Data Points</p>
+        <p class="text-2xl font-bold text-gray-600">{{ activities.length }}</p>
+        <p class="text-xs text-gray-400">Days analyzed</p>
       </div>
     </div>
+
+    <!-- Charts Section -->
+    <div class="space-y-8">
+      <!-- Activity Trend Chart -->
+      <div>
+        <h3 class="text-lg font-semibold text-gray-700 mb-4">Activity Trend</h3>
+        <div class="h-80 bg-gray-50 rounded-lg p-4">
+          <canvas baseChart [data]="stepsChartData" [options]="chartOptions" type="line"></canvas>
+        </div>
+      </div>
+
+      <!-- Weight Trend Chart -->
+      @if (weightData.length > 0) {
+      <div>
+        <h3 class="text-lg font-semibold text-gray-700 mb-4">Weight Trend</h3>
+        <div class="h-80 bg-gray-50 rounded-lg p-4">
+          <canvas baseChart [data]="weightChartData" [options]="chartOptions" type="line"></canvas>
+        </div>
+      </div>
+      }
+
+      <!-- Hydration Trend Chart -->
+      @if (hydrationData.length > 0) {
+      <div>
+        <h3 class="text-lg font-semibold text-gray-700 mb-4">Hydration Trend</h3>
+        <div class="h-80 bg-gray-50 rounded-lg p-4">
+          <canvas baseChart [data]="hydrationChartData" [options]="barChartOptions" type="bar"></canvas>
+        </div>
+      </div>
+      }
+
+      <!-- Sleep Trend Chart -->
+      <div>
+        <h3 class="text-lg font-semibold text-gray-700 mb-4">Sleep Trend</h3>
+        <div class="h-80 bg-gray-50 rounded-lg p-4">
+          <canvas baseChart [data]="sleepChartData" [options]="barChartOptions" type="bar"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Correlation Insights -->
+    @if (correlationInsights) {
+    <div class="mt-8 p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+      <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+        <lucide-icon name="TrendingUp" size="20" class="mr-2 text-green-600"></lucide-icon>
+        How Your Habits Connect
+      </h3>
+      <div class="text-gray-700 whitespace-pre-line">{{ correlationInsights }}</div>
+    </div>
+    }
   </div>
 </div>
