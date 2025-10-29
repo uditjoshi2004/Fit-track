@@ -433,10 +433,10 @@ router.put('/profile', protect, async (req, res) => {
     if (user) {
       user.name = req.body.name || user.name;
       user.height = req.body.height || user.height;
-      user.weight = req.body.weight || user.weight;
+      user.dateOfBirth = req.body.dateOfBirth || user.dateOfBirth;
+      user.gender = req.body.gender || user.gender;
 
       const updatedUser = await user.save();
-      // Send back the full updated user object
       res.json(updatedUser);
     } else {
       res.status(404).json({ message: 'User not found' });

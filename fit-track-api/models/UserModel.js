@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: function () { return this.provider === 'email'; } }, // Only required for email signups
   provider: { type: String, default: 'email', enum: ['email', 'google'] }, // Track signup method
-  avatarUrl: { type: String }, 
+  avatarUrl: { type: String },
 
   // Fields for 2FA
   isTwoFactorEnabled: { type: Boolean, default: false },
@@ -19,7 +19,16 @@ const userSchema = new mongoose.Schema({
     text: String,
     date: Date
   },
-  
+
+  dateOfBirth: {
+    type: Date,
+  },
+
+  gender: {
+    type: String,
+    enum: ['Male', 'Female', 'Other', 'Prefer not to say'], // Optional: Use enum for control
+  },
+
   googleFitRefreshToken: String,
 
   // new goals object

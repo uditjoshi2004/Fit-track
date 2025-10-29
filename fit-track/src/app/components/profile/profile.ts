@@ -1,11 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService, User } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Trophy } from 'lucide-angular';
 import { AchievementService } from '../../services/achievement.service';
 import { AvatarCropModal } from "../avatar-crop-modal/avatar-crop-modal";
 import { UserAchievement } from '../../models/achievement.model';
+import { format } from 'date-fns';
 
 @Component({
   selector: 'app-profile',
@@ -40,11 +41,13 @@ export class Profile {
     // Get current user from the service
     this.user = this.authService.currentUser();
 
-    // Initialize profile form (removed weight field)
+    // Initialize profile form with all fields
     this.profileForm = this.fb.group({
-      name: [this.user?.name || '', [Validators.required]],
-      email: [{ value: this.user?.email || '', disabled: true }], // Email is not editable
-      height: [this.user?.height || '', [Validators.min(1)]], // For height
+      name: ['', [Validators.required]],
+      email: [{ value: '', disabled: true }],
+      height: [''],
+      dateOfBirth: [''],
+      gender: [''],
     });
 
     // Initialize password form
@@ -53,6 +56,8 @@ export class Profile {
       newPassword: ['', [Validators.required, Validators.minLength(6)]],
     });
 
+    // Load profile data after form initialization
+    this.loadProfileData();
 
     this.authService.getAchievements().subscribe({
       next: (data) => {
@@ -69,7 +74,9 @@ export class Profile {
   onProfileSubmit(): void {
     if (this.profileForm.invalid) return;
     this.authService.updateProfile(this.profileForm.value).subscribe({
-      next: () => {
+      // --- MODIFY THIS 'next' HANDLER ---
+      next: (updatedUser) => {
+        this.authService.currentUser.set(updatedUser); // This updates your app state
         this.showMessage('profile', 'success', 'Profile updated successfully!');
       },
       error: (err) => this.showMessage('profile', 'error', err.error.message || 'Failed to update profile.')
@@ -137,4 +144,21 @@ export class Profile {
     });
   }
 
+  // Load profile data into the form
+  loadProfileData(): void {
+    if (this.user) {
+      // Format the date for the <input type="date"> 
+      const formattedDob = this.user.dateOfBirth
+        ? format(new Date(this.user.dateOfBirth), 'yyyy-MM-dd')
+        : '';
+
+      this.profileForm.patchValue({
+        name: this.user.name || '',
+        email: this.user.email || '',
+        height: this.user.height || '',
+        dateOfBirth: formattedDob,
+        gender: this.user.gender || ''
+      });
+    }
+  }
 }

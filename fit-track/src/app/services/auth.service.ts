@@ -9,6 +9,7 @@ export interface User {
   _id: string; name: string; email: string; height?: number;
   weight?: number; avatarUrl?: string; goals?: any; achievements?: any[];
   provider?: string; isGoogleFitConnected?: boolean; isTwoFactorEnabled?: boolean;
+  dateOfBirth?: string; gender?: string;
 }
 
 // Define interface for email status check
@@ -132,7 +133,7 @@ export class AuthService {
     return this.http.put(`${this.apiUrl}/goals`, goals);
   }
 
-  updateProfile(profileData: { name: string; height: number; weight: number }): Observable<User> {
+  updateProfile(profileData: { name: string; height: number; dateOfBirth?: string; gender?: string }): Observable<User> {
     return this.http.put<User>(`${this.apiUrl}/profile`, profileData).pipe(
       tap(updatedUser => {
         // Update the local user signal with the all new info
@@ -141,7 +142,8 @@ export class AuthService {
             ...user,
             name: updatedUser.name,
             height: updatedUser.height,
-            weight: updatedUser.weight
+            dateOfBirth: updatedUser.dateOfBirth,
+            gender: updatedUser.gender
           } : null
         );
       })
