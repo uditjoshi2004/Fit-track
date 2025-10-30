@@ -128,9 +128,22 @@ export class AuthService {
     return this.http.get(`${this.apiUrl}/goals`);
   }
 
-  // Update the user's goals
   updateGoals(goals: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/goals`, goals);
+    return this.http.put(`${this.apiUrl}/goals`, goals).pipe(
+      tap((updatedGoals) => {
+
+        // --- THIS IS THE KEY ---
+        // When the API call succeeds, update the currentUser signal.
+        this.currentUser.update(user => {
+          if (user) {
+            // Return a new user object with the updated goals
+            return { ...user, goals: updatedGoals };
+          }
+          return null; // Should not happen if user is logged in
+        });
+        // --- END OF KEY SECTION ---
+      })
+    );
   }
 
   updateProfile(profileData: { name: string; height: number; dateOfBirth?: string; gender?: string }): Observable<User> {

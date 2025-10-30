@@ -416,8 +416,15 @@ router.put('/goals', protect, async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Update goals with the data from the request body
-    user.goals = req.body || user.goals;
+    // Specifically update each goal
+    user.goals.steps = req.body.steps || user.goals.steps;
+    user.goals.caloriesBurned = req.body.caloriesBurned || user.goals.caloriesBurned;
+    user.goals.activeMinutes = req.body.activeMinutes || user.goals.activeMinutes;
+    user.goals.sleep = req.body.sleep || user.goals.sleep;
+
+    // --- ADD THIS LINE ---
+    user.goals.hydration = req.body.hydration || user.goals.hydration;
+
     const updatedUser = await user.save();
 
     res.json(updatedUser.goals);
@@ -733,17 +740,17 @@ router.post('/ai/report-summary', protect, async (req, res) => {
 
     // Fetch all data for the date range
     const [activities, hydrationData, weightData] = await Promise.all([
-      Activity.find({ 
-        user: user._id, 
-        date: { $gte: new Date(startDate), $lte: new Date(endDate) } 
+      Activity.find({
+        user: user._id,
+        date: { $gte: new Date(startDate), $lte: new Date(endDate) }
       }).sort({ date: 1 }),
-      require('../models/HydrationEntry').find({ 
-        user: user._id, 
-        date: { $gte: new Date(startDate), $lte: new Date(endDate) } 
+      require('../models/HydrationEntry').find({
+        user: user._id,
+        date: { $gte: new Date(startDate), $lte: new Date(endDate) }
       }).sort({ date: 1 }),
-      WeightEntry.find({ 
-        user: user._id, 
-        date: { $gte: new Date(startDate), $lte: new Date(endDate) } 
+      WeightEntry.find({
+        user: user._id,
+        date: { $gte: new Date(startDate), $lte: new Date(endDate) }
       }).sort({ date: 1 })
     ]);
 
@@ -770,17 +777,17 @@ router.post('/ai/correlation-insights', protect, async (req, res) => {
 
     // Fetch all data for the date range
     const [activities, hydrationData, weightData] = await Promise.all([
-      Activity.find({ 
-        user: user._id, 
-        date: { $gte: new Date(startDate), $lte: new Date(endDate) } 
+      Activity.find({
+        user: user._id,
+        date: { $gte: new Date(startDate), $lte: new Date(endDate) }
       }).sort({ date: 1 }),
-      require('../models/HydrationEntry').find({ 
-        user: user._id, 
-        date: { $gte: new Date(startDate), $lte: new Date(endDate) } 
+      require('../models/HydrationEntry').find({
+        user: user._id,
+        date: { $gte: new Date(startDate), $lte: new Date(endDate) }
       }).sort({ date: 1 }),
-      WeightEntry.find({ 
-        user: user._id, 
-        date: { $gte: new Date(startDate), $lte: new Date(endDate) } 
+      WeightEntry.find({
+        user: user._id,
+        date: { $gte: new Date(startDate), $lte: new Date(endDate) }
       }).sort({ date: 1 })
     ]);
 

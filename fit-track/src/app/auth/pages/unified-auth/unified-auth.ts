@@ -131,7 +131,7 @@ export class UnifiedAuth {
           this.currentStep = '2fa';
         } else {
           // No 2FA, login is complete
-          this.router.navigate(['/app/dashboard']);
+          this.router.navigate(['/welcome']);
         }
       },
       error: (err) => {
@@ -151,7 +151,7 @@ export class UnifiedAuth {
     this.authService.loginWithTwoFactor(this.tempUserId, token).subscribe({
       next: () => {
         this.isLoading = false;
-        this.router.navigate(['/app/dashboard']);
+        this.router.navigate(['/welcome']);
       },
       error: (err) => {
         this.errorMessage = err.error.message || 'Invalid 2FA code.';
@@ -176,7 +176,7 @@ export class UnifiedAuth {
       next: (response) => {
         this.isLoading = false;
         localStorage.setItem('fit-track-token', response.token);
-        this.router.navigate(['/app/dashboard']);
+        this.router.navigate(['/welcome']);
       },
       error: (err) => {
         this.errorMessage = err.error.message || 'Registration failed. Please try again.';
@@ -191,7 +191,7 @@ export class UnifiedAuth {
       next: () => {
         this.isLoading = false;
         this.ngZone.run(() => {
-          this.router.navigate(['/app/dashboard']);
+          this.router.navigate(['/welcome']);
         });
       },
       error: (err) => {

@@ -51,7 +51,7 @@ export class Register {
       next: () => {
         this.isLoading = false;
         this.ngZone.run(() => {
-          this.router.navigate(['/app/dashboard']);
+          this.router.navigate(['app/dashboard']);
         });
       },
       error: (err) => {
@@ -80,7 +80,7 @@ export class Register {
     });
   }
 
-  // 4. Add method to toggle visibility
+  // Add method to toggle visibility
   togglePasswordVisibility(): void {
     this.passwordVisible = !this.passwordVisible;
   }

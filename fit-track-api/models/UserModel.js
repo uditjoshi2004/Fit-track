@@ -37,6 +37,7 @@ const userSchema = new mongoose.Schema({
     caloriesBurned: { type: Number, default: 500 },
     activeMinutes: { type: Number, default: 60 },
     sleepHours: { type: Number, default: 7.5 },
+    hydration: { type: Number, default: 2000 } // Default to 2000ml
   },
   achievements: [{
     badgeId: String,

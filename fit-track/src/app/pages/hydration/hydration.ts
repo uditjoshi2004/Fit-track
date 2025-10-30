@@ -22,6 +22,7 @@ type FilterType = 'day' | 'week' | 'month';
 export class Hydration {
   private hydrationService = inject(HydrationService);
   private authService = inject(AuthService);
+  private user = this.authService.currentUser;
   // --- State Signals ---
   public allEntries = signal<HydrationEntry[]>([]);
   public isLoading = signal(true);
@@ -29,6 +30,21 @@ export class Hydration {
   public activeFilter = signal<FilterType>('week');
   public selectedDate = signal(new Date()); // <-- ADD THIS LINE
   public dailyGoal = signal(2500); // Daily goal in ml
+
+  // Create a computed signal for the goal
+  public hydrationGoal = computed(() => {
+    // Read the goal from the user signal, or use a default
+    return this.user()?.goals?.hydration || 2000;
+  });
+
+  // Create a computed signal for the percentage
+  public goalPercentage = computed(() => {
+    const goal = this.hydrationGoal();
+    if (goal === 0) {
+      return 0; // Avoid division by zero
+    }
+    return (this.todaysIntake() / goal) * 100;
+  });
 
   // --- KPI Computed Signals ---
   public todaysIntake = computed(() => {
@@ -158,7 +174,7 @@ export class Hydration {
         dayOfMonth: format(date, 'd'),
         isCurrentMonth: isSameMonth(date, now),
         intake,
-        fillPercentage: Math.min(100, (intake / this.dailyGoal()) * 100)
+        fillPercentage: Math.min(100, (intake / this.hydrationGoal()) * 100)
       };
     });
   });

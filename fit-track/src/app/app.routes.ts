@@ -20,6 +20,7 @@ import { Reports } from './pages/reports/reports';
 import { WeightTracking } from './pages/weight-tracking/weight-tracking';
 import { Hydration } from './pages/hydration/hydration';
 import { Bmi } from './pages/bmi/bmi';
+import { WelcomeComponent } from './pages/welcome/welcome';
 
 export const routes: Routes = [
     {
@@ -34,6 +35,12 @@ export const routes: Routes = [
             { path: 'reset-password/:token', component: ResetPassword },
             { path: '', redirectTo: 'unified', pathMatch: 'full' }
         ]
+    },
+
+    {
+        path: 'welcome',
+        component: WelcomeComponent,
+        canActivate: [authGuard]
     },
 
     {

@@ -34,6 +34,7 @@ export class Settings {
       caloriesBurned: [500, [Validators.required, Validators.min(1)]],
       activeMinutes: [60, [Validators.required, Validators.min(1)]],
       sleepHours: [7.5, [Validators.required, Validators.min(1)]],
+      hydration: [0]
     });
 
     // Fetch the user's current goals and populate the form
@@ -72,7 +73,7 @@ export class Settings {
         next: () => {
           alert('Successfully disconnected from Google Fit.');
           this.googleFitService.signalDisconnected();
-          
+
           // Refresh user profile to update connection status
           this.authService.getProfile().subscribe({
             next: (user) => {

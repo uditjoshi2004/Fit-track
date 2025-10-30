@@ -44,8 +44,8 @@ export class Login {
         this.isLoading = false;
         // Save the token to localStorage
         localStorage.setItem('fit-track-token', response.token);
-        // Navigate to the main application dashboard
-        this.router.navigate(['/app/dashboard']);
+        // Navigate to the welcome screen
+        this.router.navigate(['welcome']);
       },
       error: (err) => {
         this.errorMessage = err.error.message || 'Login failed. Please try again.';
@@ -80,7 +80,7 @@ export class Login {
       next: () => {
         this.isLoading = false;
         this.ngZone.run(() => {
-          this.router.navigate(['/app/dashboard']);
+          this.router.navigate(['welcome']);
         });
       },
       error: (err) => {
